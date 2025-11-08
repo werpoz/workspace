@@ -1,22 +1,23 @@
 import { Module } from '@nestjs/common';
-import { RegisterAccountUseCase } from './application/RegisterAccountUseCase';
 import { AccountCreatedHandler } from './application/handlers/AccountCreatedHandler';
 import { InMemmoryAccountRepository } from './infrastructure/persistence/memmory/InMemmoryAccountRepository';
 import { EventBusModule } from '../shared/eventBus.module';
-import { RegisterAccountController } from './infrastructure/http/controller/user.controller';
-import { UserCreateEventWebhook } from './infrastructure/http/webhook/UserCreateEventWebhook';
+import { EmailCreateEventWebhook } from './infrastructure/http/webhook/EmailCreatedEventWebhook';
+import { EmailCreatedHandler } from './application/handlers/ExternalUserCreatedHandler';
+import { RegisterExternalAccountUseCase } from './application/RegisterExternalAccountUseCase';
 
 @Module({
   imports: [EventBusModule],
-  controllers: [RegisterAccountController, UserCreateEventWebhook],
+  controllers: [EmailCreateEventWebhook],
   providers: [
-    RegisterAccountUseCase,
+    EmailCreatedHandler,
     AccountCreatedHandler,
+    RegisterExternalAccountUseCase,
     {
       provide: 'AccountRepository',
       useClass: InMemmoryAccountRepository,
     },
   ],
-  exports: [RegisterAccountUseCase],
+  exports: [],
 })
 export class IdentityModule {}
