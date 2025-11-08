@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Account } from 'src/context/identity/domain/Account';
 import { Identity } from 'src/context/identity/domain/Identity';
 import { IdentityRepository } from 'src/context/identity/domain/interface/IdentityRepository';
 import { Nullable } from 'src/context/shared/domain/Nullable';
@@ -20,11 +21,11 @@ export class InMemmoryIdentityRepository implements IdentityRepository {
     return Promise.resolve(identity);
   }
 
-  searchByExternalId(externalId: string): Promise<Nullable<Identity>> {
+  searchByExternalId(account: Account): Promise<Nullable<Identity>> {
     let identity: Nullable<Identity>;
 
     this.store.forEach((i) => {
-      if (i.externalId == externalId) {
+      if (i.accountId.value === account.id.value) {
         identity = i;
       }
     });

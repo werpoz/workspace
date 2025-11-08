@@ -4,12 +4,12 @@ import { IdentityCreatedDomainEvent } from '../../domain/events/IdentityCreatedD
 
 @EventsHandler(IdentityCreatedDomainEvent)
 @Injectable()
-export class AccountCreatedHandler
+export class IdentityCreatedHandler
   implements IEventHandler<IdentityCreatedDomainEvent>
 {
   handle(event: IdentityCreatedDomainEvent) {
     console.log(
-      '[AccountCreatedHandler] account created:',
+      '[IdentityCreatedHandler] identity created:',
       event.aggregateId,
       event.toPrimitives(),
     );

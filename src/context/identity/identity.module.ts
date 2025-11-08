@@ -5,6 +5,8 @@ import { EventBusModule } from '../shared/eventBus.module';
 import { EmailCreateEventWebhook } from './infrastructure/http/webhook/EmailCreatedEventWebhook';
 import { EmailCreatedHandler } from './application/handlers/ExternalUserCreatedHandler';
 import { RegisterExternalAccountUseCase } from './application/RegisterExternalAccountUseCase';
+import { InMemmoryIdentityRepository } from './infrastructure/persistence/memmory/InMemmoryIdentityRepository';
+import { IdentityCreatedHandler } from './application/handlers/IdentityCreatedHandler';
 
 @Module({
   imports: [EventBusModule],
@@ -12,10 +14,15 @@ import { RegisterExternalAccountUseCase } from './application/RegisterExternalAc
   providers: [
     EmailCreatedHandler,
     AccountCreatedHandler,
+    IdentityCreatedHandler,
     RegisterExternalAccountUseCase,
     {
       provide: 'AccountRepository',
       useClass: InMemmoryAccountRepository,
+    },
+    {
+      provide: 'IdentityRepository',
+      useClass: InMemmoryIdentityRepository,
     },
   ],
   exports: [],

@@ -40,8 +40,9 @@ export class EmailCreateEventWebhook {
     if (name.endsWith('created')) {
       this.eventBus.publish(
         new ExternalUserCreatedEvent(
-          data.instance_id,
+          data.data.id,
           data.data.to_email_address,
+          'clerk',
         ),
       );
     }

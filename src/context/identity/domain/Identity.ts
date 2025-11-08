@@ -2,16 +2,17 @@ import { AggregateRoot } from 'src/context/shared/domain/AggregateRoot';
 import { AccountID } from './value-object/AccountID';
 import { IdentityID } from './value-object/IdentityID';
 import { IdentityCreatedDomainEvent } from './events/IdentityCreatedDomainEvent';
+import { Provider } from './value-object/Provider';
 
 export class Identity extends AggregateRoot {
   id: IdentityID;
-  provider: 'email' | 'google' | 'magic-link' | 'clerk';
+  provider: Provider;
   externalId: string | null;
   accountId: AccountID;
 
   constructor(
     id: IdentityID,
-    provider: 'email' | 'google' | 'magic-link' | 'clerk',
+    provider: Provider,
     externalId: string | null,
     accountId: AccountID,
   ) {
@@ -24,7 +25,7 @@ export class Identity extends AggregateRoot {
 
   static create(
     id: IdentityID,
-    provider: 'email' | 'google' | 'magic-link' | 'clerk',
+    provider: Provider,
     externalId: string | null,
     accountId: AccountID,
   ): Identity {
@@ -32,7 +33,7 @@ export class Identity extends AggregateRoot {
     identity.record(
       new IdentityCreatedDomainEvent({
         aggregateId: id.value,
-        provider: provider,
+        provider: provider.value,
       }),
     );
     return identity;
@@ -40,7 +41,7 @@ export class Identity extends AggregateRoot {
 
   static fromPrimitives(plainData: {
     id: string;
-    provider: 'email' | 'google' | 'magic-link' | 'clerk';
+    provider: Provider;
     externalId: string | null;
     accountId: string;
   }) {

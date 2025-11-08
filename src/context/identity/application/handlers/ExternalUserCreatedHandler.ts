@@ -7,10 +7,14 @@ export class EmailCreatedHandler
   implements IEventHandler<ExternalUserCreatedEvent>
 {
   constructor(
-    private readonly accountRepository: RegisterExternalAccountUseCase,
+    private readonly registerExternalAccountUseCase: RegisterExternalAccountUseCase,
   ) {}
 
   async handle(event: ExternalUserCreatedEvent): Promise<void> {
-    await this.accountRepository.execute(event.email);
+    await this.registerExternalAccountUseCase.execute(
+      event.email,
+      event.externalId,
+      event.provider,
+    );
   }
 }
