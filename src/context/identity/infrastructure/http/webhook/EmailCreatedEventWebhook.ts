@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventBus } from '@nestjs/cqrs';
 import { ExternalUserCreatedEvent } from 'src/context/identity/application/events/ExternalUserCreatedEvent';
 import type { ClerkEmailCreatedEvent } from '../../types/webhook.email.types';
+import { Provider } from 'src/context/identity/domain/value-object/Provider';
 
 @Controller('webhook/email')
 export class EmailCreateEventWebhook {
@@ -40,9 +41,9 @@ export class EmailCreateEventWebhook {
     if (name.endsWith('created')) {
       this.eventBus.publish(
         new ExternalUserCreatedEvent(
-          data.data.id,
+          data.data.user_id,
           data.data.to_email_address,
-          'clerk',
+          new Provider('clerk').value,
         ),
       );
     }

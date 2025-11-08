@@ -34,6 +34,7 @@ export class Identity extends AggregateRoot {
       new IdentityCreatedDomainEvent({
         aggregateId: id.value,
         provider: provider.value,
+        externalId: externalId,
       }),
     );
     return identity;
