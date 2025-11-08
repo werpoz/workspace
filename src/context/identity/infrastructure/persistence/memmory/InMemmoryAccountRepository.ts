@@ -20,6 +20,18 @@ export class InMemmoryAccountRepository implements AccountRepository {
     return Promise.resolve(account);
   }
 
+  searchByEmail(email: string): Promise<Nullable<Account>> {
+    let account: Nullable<Account>;
+
+    this.store.forEach((e) => {
+      if (e.email.value == email) {
+        account = e;
+      }
+    });
+
+    return Promise.resolve(account);
+  }
+
   update(account: Account): Promise<void> {
     this.store.set(account.id.value, account);
     return Promise.resolve();
