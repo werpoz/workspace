@@ -1,6 +1,7 @@
 import { AggregateRoot } from 'src/context/shared/domain/AggregateRoot';
 import { AccountID } from './value-object/AccountID';
 import { IdentityID } from './value-object/IdentityID';
+import { IdentityCreatedDomainEvent } from './events/IdentityCreatedDomainEvent';
 
 export class Identity extends AggregateRoot {
   id: IdentityID;
@@ -28,6 +29,12 @@ export class Identity extends AggregateRoot {
     accountId: AccountID,
   ): Identity {
     const identity = new Identity(id, provider, externalId, accountId);
+    identity.record(
+      new IdentityCreatedDomainEvent({
+        aggregateId: id.value,
+        provider: provider,
+      }),
+    );
     return identity;
   }
 
