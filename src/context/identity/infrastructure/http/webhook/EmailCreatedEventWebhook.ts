@@ -5,8 +5,8 @@ import { Webhook } from 'svix';
 import { ConfigService } from '@nestjs/config';
 import { EventBus } from '@nestjs/cqrs';
 import { ExternalUserCreatedEvent } from 'src/context/identity/application/events/ExternalUserCreatedEvent';
-import type { ClerkEmailCreatedEvent } from '../../types/webhook.email.types';
 import { Provider } from 'src/context/identity/domain/value-object/Provider';
+import type { ClerkUserCreatedEvent } from '../../types/webhook.user.created';
 
 @Controller('webhook/email')
 export class EmailCreateEventWebhook {
@@ -16,7 +16,7 @@ export class EmailCreateEventWebhook {
   ) {}
 
   @Post()
-  register(@Req() request: Request, @Body() body: ClerkEmailCreatedEvent) {
+  register(@Req() request: Request, @Body() body: ClerkUserCreatedEvent) {
     const headerPayload: IncomingHttpHeaders = request.headers;
 
     const svixHeaders = {
@@ -32,17 +32,17 @@ export class EmailCreateEventWebhook {
 
     wh.verify(JSON.stringify(body), svixHeaders) as Record<string, any>;
 
-    this.handleEvent(body.type, body);
+    this.handleEvent(body);
 
     return true;
   }
 
-  private handleEvent(name: string, data: ClerkEmailCreatedEvent) {
-    if (name.endsWith('created')) {
+  private handleEvent(data: ClerkUserCreatedEvent) {
+    if (data.type.endsWith('created')) {
       this.eventBus.publish(
         new ExternalUserCreatedEvent(
-          data.data.user_id,
-          data.data.to_email_address,
+          data.data.id,
+          data.data.email_addresses[0].email_address,
           new Provider('clerk').value,
         ),
       );
