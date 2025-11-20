@@ -1,4 +1,5 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
+import type { RawBodyRequest } from '@nestjs/common';
 import type { Request } from 'express';
 import { IncomingHttpHeaders } from 'http';
 import { Webhook } from 'svix';
@@ -13,10 +14,10 @@ export class EmailCreateEventWebhook {
   constructor(
     private readonly configService: ConfigService,
     private readonly eventBus: EventBus,
-  ) {}
+  ) { }
 
   @Post()
-  register(@Req() request: Request, @Body() body: ClerkUserCreatedEvent) {
+  register(@Req() request: RawBodyRequest<Request>, @Body() body: ClerkUserCreatedEvent) {
     const headerPayload: IncomingHttpHeaders = request.headers;
 
     const svixHeaders = {
@@ -30,7 +31,11 @@ export class EmailCreateEventWebhook {
     );
     const wh = new Webhook(signingSecret);
 
-    wh.verify(JSON.stringify(body), svixHeaders) as Record<string, any>;
+    if (!request.rawBody) {
+      throw new Error('Webhook Error: Missing raw body');
+    }
+
+    wh.verify(request.rawBody, svixHeaders) as Record<string, any>;
 
     this.handleEvent(body);
 
