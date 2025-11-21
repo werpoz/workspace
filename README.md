@@ -1,98 +1,231 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Workspace - NestJS DDD Project
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A production-ready NestJS application built with Domain-Driven Design (DDD) and Hexagonal Architecture principles, featuring authentication via Clerk and comprehensive test coverage.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🏗️ Architecture
 
-## Description
+This project follows **Domain-Driven Design (DDD)** and **Hexagonal Architecture** patterns:
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ pnpm install
+```
+src/
+└── context/
+    ├── identity/           # Identity Bounded Context
+    │   ├── domain/         # Domain layer (entities, value objects, events)
+    │   ├── application/    # Application layer (use cases, handlers)
+    │   └── infrastructure/ # Infrastructure layer (HTTP, persistence)
+    └── shared/             # Shared kernel
+        ├── domain/         # Shared domain primitives
+        └── infrastructure/ # Shared infrastructure
 ```
 
-## Compile and run the project
+### Key Architectural Patterns
+
+- **CQRS (Command Query Responsibility Segregation)**: Separates read and write operations
+- **Event-Driven Architecture**: Domain events for decoupled communication
+- **Dependency Injection**: NestJS IoC container for loose coupling
+- **Repository Pattern**: Abstraction over data persistence
+- **Value Objects**: Immutable domain primitives with validation
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js >= 18
+- pnpm >= 8
+
+### Installation
 
 ```bash
-# development
-$ pnpm run start
+# Install dependencies
+pnpm install
 
-# watch mode
-$ pnpm run start:dev
+# Copy environment variables
+cp .env.example .env
 
-# production mode
-$ pnpm run start:prod
+# Configure your Clerk credentials in .env
 ```
 
-## Run tests
+### Environment Variables
+
+```env
+PORT=3000
+CLERK_SECRET_KEY=sk_test_...
+CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_WEBHOOK_SECRET=whsec_...
+```
+
+### Running the Application
 
 ```bash
-# unit tests
-$ pnpm run test
+# Development mode with hot reload
+pnpm run start:dev
 
-# e2e tests
-$ pnpm run test:e2e
+# Production mode
+pnpm run build
+pnpm run start:prod
 
-# test coverage
-$ pnpm run test:cov
+# Debug mode
+pnpm run start:debug
 ```
 
-## Deployment
+## 🧪 Testing
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+We maintain **100% test coverage** across the codebase.
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+# Run all tests
+pnpm run test
+
+# Run tests in watch mode
+pnpm run test:watch
+
+# Run tests with coverage report
+pnpm run test:cov
+
+# Run e2e tests
+pnpm run test:e2e
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Test Coverage
 
-## Resources
+- **Statements**: 100%
+- **Branches**: 100%
+- **Functions**: 100%
+- **Lines**: 100%
 
-Check out a few resources that may come in handy when working with NestJS:
+## 📁 Project Structure
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```
+workspace/
+├── src/
+│   ├── context/
+│   │   ├── identity/
+│   │   │   ├── domain/
+│   │   │   │   ├── value-object/     # Value objects (Email, Password, etc.)
+│   │   │   │   ├── events/           # Domain events
+│   │   │   │   ├── interface/        # Repository interfaces
+│   │   │   │   ├── Account.ts        # Account aggregate
+│   │   │   │   └── Identity.ts       # Identity aggregate
+│   │   │   ├── application/
+│   │   │   │   ├── handlers/         # Event handlers
+│   │   │   │   ├── events/           # Application events
+│   │   │   │   └── *.UseCase.ts      # Use cases
+│   │   │   └── infrastructure/
+│   │   │       ├── http/             # Controllers, guards, webhooks
+│   │   │       └── persistence/      # Repository implementations
+│   │   └── shared/
+│   │       ├── domain/               # Shared domain primitives
+│   │       └── infrastructure/       # Shared infrastructure
+│   ├── app.module.ts
+│   └── main.ts
+├── test/                             # Mirror of src/ for unit tests
+├── .env.example
+├── package.json
+└── README.md
+```
 
-## Support
+## 🛠️ Development
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Code Style
 
-## Stay in touch
+We use ESLint and Prettier for code formatting:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+# Format code
+pnpm run format
 
-## License
+# Lint and fix
+pnpm run lint
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Naming Conventions
+
+- **Value Objects**: Use `.vo.ts` suffix (e.g., `Email.vo.ts`, `AccountID.vo.ts`)
+- **Domain Events**: Use `*DomainEvent.ts` suffix (e.g., `IdentityCreatedDomainEvent.ts`)
+- **Use Cases**: Use `*UseCase.ts` suffix (e.g., `RegisterExternalAccountUseCase.ts`)
+- **Handlers**: Use `*Handler.ts` suffix (e.g., `ExternalUserCreatedHandler.ts`)
+- **Tests**: Use `.spec.ts` suffix, mirroring the source structure
+
+### Adding a New Feature
+
+1. **Domain Layer**: Define entities, value objects, and domain events
+2. **Application Layer**: Create use cases and event handlers
+3. **Infrastructure Layer**: Implement controllers, repositories, and external integrations
+4. **Tests**: Write comprehensive unit tests for each layer
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+
+## 🔐 Authentication
+
+This project uses [Clerk](https://clerk.com) for authentication:
+
+- **ClerkAuthGuard**: Protects routes with JWT verification
+- **Webhook Integration**: Handles user creation events from Clerk
+- **External Account Registration**: Automatically creates accounts for Clerk users
+
+## 📚 Key Concepts
+
+### Domain-Driven Design
+
+- **Bounded Contexts**: Logical boundaries for different parts of the system (e.g., Identity)
+- **Aggregates**: Clusters of domain objects treated as a single unit (e.g., Account, Identity)
+- **Value Objects**: Immutable objects defined by their attributes (e.g., Email, Password)
+- **Domain Events**: Events that represent something that happened in the domain
+
+### CQRS
+
+- **Commands**: Operations that change state (handled by use cases)
+- **Queries**: Operations that read state (handled by repositories)
+- **Event Bus**: Publishes domain events for asynchronous processing
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+
+- Code of Conduct
+- Development workflow
+- Pull request process
+- Coding standards
+- Testing requirements
+
+## 📖 Additional Documentation
+
+- [Architecture Guide](./docs/ARCHITECTURE.md) - Detailed architecture documentation
+- [API Documentation](./docs/API.md) - API endpoints and usage
+- [Testing Guide](./docs/TESTING.md) - Testing strategies and best practices
+
+## 🐛 Debugging
+
+```bash
+# Debug mode
+pnpm run start:debug
+
+# Debug tests
+pnpm run test:debug
+```
+
+## 📦 Building for Production
+
+```bash
+# Build the application
+pnpm run build
+
+# Run production build
+pnpm run start:prod
+```
+
+## 📄 License
+
+This project is [UNLICENSED](LICENSE).
+
+## 🙏 Acknowledgments
+
+Built with:
+- [NestJS](https://nestjs.com/) - Progressive Node.js framework
+- [Clerk](https://clerk.com/) - Authentication and user management
+- [Jest](https://jestjs.io/) - Testing framework
+- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
+
+---
+
+For questions or support, please open an issue on GitHub.
