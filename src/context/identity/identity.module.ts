@@ -3,7 +3,7 @@ import { AccountCreatedHandler } from './application/handlers/AccountCreatedHand
 import { InMemmoryAccountRepository } from './infrastructure/persistence/memmory/InMemmoryAccountRepository';
 import { EventBusModule } from '../shared/eventBus.module';
 import { EmailCreateEventWebhook } from './infrastructure/http/webhook/EmailCreatedEventWebhook';
-import { EmailCreatedHandler } from './application/handlers/ExternalUserCreatedHandler';
+import { ExternalUserCreatedHandler } from './application/handlers/ExternalUserCreatedHandler';
 import { RegisterExternalAccountUseCase } from './application/RegisterExternalAccountUseCase';
 import { InMemmoryIdentityRepository } from './infrastructure/persistence/memmory/InMemmoryIdentityRepository';
 import { IdentityCreatedHandler } from './application/handlers/IdentityCreatedHandler';
@@ -12,7 +12,7 @@ import { IdentityCreatedHandler } from './application/handlers/IdentityCreatedHa
   imports: [EventBusModule],
   controllers: [EmailCreateEventWebhook],
   providers: [
-    EmailCreatedHandler,
+    ExternalUserCreatedHandler,
     AccountCreatedHandler,
     IdentityCreatedHandler,
     RegisterExternalAccountUseCase,
@@ -27,4 +27,4 @@ import { IdentityCreatedHandler } from './application/handlers/IdentityCreatedHa
   ],
   exports: [],
 })
-export class IdentityModule {}
+export class IdentityModule { }

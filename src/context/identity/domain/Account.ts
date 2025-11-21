@@ -11,11 +11,11 @@ export class Account extends AggregateRoot {
   readonly email: Email;
   readonly isActive: boolean;
 
-  private constructor(
+  constructor(
     id: AccountID,
     password: Nullable<Password>,
     email: Email,
-    isActive: boolean = true,
+    isActive: boolean,
   ) {
     super();
     this.id = id;

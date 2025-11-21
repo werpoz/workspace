@@ -5,8 +5,7 @@ import { IdentityCreatedDomainEvent } from '../../domain/events/IdentityCreatedD
 @EventsHandler(IdentityCreatedDomainEvent)
 @Injectable()
 export class IdentityCreatedHandler
-  implements IEventHandler<IdentityCreatedDomainEvent>
-{
+  implements IEventHandler<IdentityCreatedDomainEvent> {
   handle(event: IdentityCreatedDomainEvent) {
     console.log(
       '[IdentityCreatedHandler] identity created:',

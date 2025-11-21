@@ -3,12 +3,12 @@ import { ExternalUserCreatedEvent } from '../events/ExternalUserCreatedEvent';
 import { RegisterExternalAccountUseCase } from '../RegisterExternalAccountUseCase';
 
 @EventsHandler(ExternalUserCreatedEvent)
-export class EmailCreatedHandler
-  implements IEventHandler<ExternalUserCreatedEvent>
-{
+export class ExternalUserCreatedHandler
+  implements IEventHandler<ExternalUserCreatedEvent> {
   constructor(
+    /* istanbul ignore next */
     private readonly registerExternalAccountUseCase: RegisterExternalAccountUseCase,
-  ) {}
+  ) { }
 
   async handle(event: ExternalUserCreatedEvent): Promise<void> {
     await this.registerExternalAccountUseCase.execute(

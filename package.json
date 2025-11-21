@@ -65,18 +65,32 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
+    "rootDir": ".",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "src/**/*.(t|j)s",
+      "!src/main.ts",
+      "!src/**/*.module.ts",
+      "!src/context/identity/application/handlers/ExternalUserCreatedHandler.ts",
+      "!src/context/identity/infrastructure/http/guards/ClerkAuthGuard.ts",
+      "!src/context/identity/infrastructure/http/webhook/EmailCreatedEventWebhook.ts",
+      "!src/context/shared/infrastructure/NestCqrsEventBus.ts"
     ],
-    "coverageDirectory": "../coverage",
+    "coverageDirectory": "./coverage",
     "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/test"
+    ],
     "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/$1"
-    }
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "^uuid$": "<rootDir>/test/mocks/uuid.ts"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!uuid)"
+    ]
   }
 }
