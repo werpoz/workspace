@@ -1,6 +1,6 @@
 import { InMemmoryAccountRepository } from 'src/context/identity/infrastructure/persistence/memmory/InMemmoryAccountRepository';
 import { Account } from 'src/context/identity/domain/Account';
-import { AccountID } from 'src/context/identity/domain/value-object/AccountID';
+import { AccountID } from 'src/context/identity/domain/value-object/AccountID.vo';
 import { Email } from 'src/context/identity/domain/value-object/Email.vo';
 import { Password } from 'src/context/identity/domain/value-object/Password.vo';
 import { Uuid } from 'src/context/shared/domain/value-object/Uuid';

@@ -1,8 +1,9 @@
 import { AggregateRoot } from 'src/context/shared/domain/AggregateRoot';
-import { AccountID } from './value-object/AccountID';
-import { IdentityID } from './value-object/IdentityID';
+import { AccountID } from './value-object/AccountID.vo';
+import { IdentityID } from './value-object/IdentityID.vo';
+import { Email } from './value-object/Email.vo';
 import { IdentityCreatedDomainEvent } from './events/IdentityCreatedDomainEvent';
-import { Provider } from './value-object/Provider';
+import { Provider } from './value-object/Provider.vo';
 
 export class Identity extends AggregateRoot {
   id: IdentityID;

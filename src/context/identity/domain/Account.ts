@@ -1,7 +1,7 @@
 import { Email } from 'src/context/identity/domain/value-object/Email.vo';
 import { Password } from 'src/context/identity/domain/value-object/Password.vo';
 import { AggregateRoot } from 'src/context/shared/domain/AggregateRoot';
-import { AccountID } from './value-object/AccountID';
+import { AccountID } from './value-object/AccountID.vo';
 import { AccountCreatedDomainEvent } from './events/AccountCreatedDomainEvent';
 import { Nullable } from 'src/context/shared/domain/Nullable';
 

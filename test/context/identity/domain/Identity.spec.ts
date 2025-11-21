@@ -1,7 +1,7 @@
 import { Identity } from 'src/context/identity/domain/Identity';
-import { IdentityID } from 'src/context/identity/domain/value-object/IdentityID';
-import { AccountID } from 'src/context/identity/domain/value-object/AccountID';
-import { Provider } from 'src/context/identity/domain/value-object/Provider';
+import { IdentityID } from 'src/context/identity/domain/value-object/IdentityID.vo';
+import { AccountID } from 'src/context/identity/domain/value-object/AccountID.vo';
+import { Provider } from 'src/context/identity/domain/value-object/Provider.vo';
 import { Uuid } from 'src/context/shared/domain/value-object/Uuid';
 import { IdentityCreatedDomainEvent } from 'src/context/identity/domain/events/IdentityCreatedDomainEvent';
 

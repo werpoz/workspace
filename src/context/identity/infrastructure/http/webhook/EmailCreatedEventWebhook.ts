@@ -6,7 +6,7 @@ import { Webhook } from 'svix';
 import { ConfigService } from '@nestjs/config';
 import { EventBus } from '@nestjs/cqrs';
 import { ExternalUserCreatedEvent } from 'src/context/identity/application/events/ExternalUserCreatedEvent';
-import { Provider } from 'src/context/identity/domain/value-object/Provider';
+import { Provider } from 'src/context/identity/domain/value-object/Provider.vo';
 import type { ClerkUserCreatedEvent } from '../../types/webhook.user.created';
 
 @Controller('webhook/email')

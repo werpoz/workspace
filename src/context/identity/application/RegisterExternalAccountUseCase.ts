@@ -7,7 +7,7 @@ import { Inject } from '@nestjs/common';
 import { Nullable } from 'src/context/shared/domain/Nullable';
 import type { IdentityRepository } from '../domain/interface/IdentityRepository';
 import { Identity } from '../domain/Identity';
-import { Provider, ProviderType } from '../domain/value-object/Provider';
+import { Provider, ProviderType } from '../domain/value-object/Provider.vo';
 
 export class RegisterExternalAccountUseCase {
   constructor(
@@ -17,7 +17,7 @@ export class RegisterExternalAccountUseCase {
     private readonly identityRepository: IdentityRepository,
     @Inject('DomainEventBus')
     private readonly eventBus: DomainEventBus,
-  ) {}
+  ) { }
 
   async execute(email: string, externalId: string, provider: string) {
     const accountExist: Nullable<Account> =

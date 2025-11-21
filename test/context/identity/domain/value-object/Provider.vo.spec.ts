@@ -1,4 +1,4 @@
-import { Provider } from 'src/context/identity/domain/value-object/Provider';
+import { Provider } from 'src/context/identity/domain/value-object/Provider.vo';
 
 describe('Provider', () => {
     it('should create a valid Provider', () => {

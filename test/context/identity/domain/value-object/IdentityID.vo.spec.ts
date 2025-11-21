@@ -1,4 +1,4 @@
-import { IdentityID } from 'src/context/identity/domain/value-object/IdentityID';
+import { IdentityID } from 'src/context/identity/domain/value-object/IdentityID.vo';
 import { Uuid } from 'src/context/shared/domain/value-object/Uuid';
 
 describe('IdentityID', () => {
