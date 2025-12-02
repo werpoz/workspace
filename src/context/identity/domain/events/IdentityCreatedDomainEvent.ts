@@ -3,26 +3,22 @@ import { DomainEvent } from 'src/context/shared/domain/DomainEvent';
 export class IdentityCreatedDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'identity.created';
 
-  constructor(params: {
-    aggregateId: string;
-    provider?: string;
-    externalId: string | null;
-  }) {
+  constructor(params: { aggregateId: string; accountId?: string }) {
     super({
       eventName: IdentityCreatedDomainEvent.EVENT_NAME,
       aggregateId: params.aggregateId,
     });
-    this.provider = params.provider;
-    this.externalId = params.externalId;
+    this.identityId = params.aggregateId;
+    this.accountId = params.accountId;
   }
 
-  readonly provider?: string;
-  readonly externalId?: string | null;
+  readonly identityId?: string;
+  readonly accountId?: string;
 
   toPrimitives() {
     return {
-      provider: this.provider,
-      externalId: this.externalId,
+      identityId: this.identityId,
+      accountId: this.accountId,
     };
   }
 
@@ -34,10 +30,7 @@ export class IdentityCreatedDomainEvent extends DomainEvent {
   }) {
     return new IdentityCreatedDomainEvent({
       aggregateId: params.aggregateId,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      provider: params.attributes?.provider,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      externalId: params.attributes?.externalId,
+      accountId: params.attributes?.accountId,
     });
   }
 }

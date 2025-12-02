@@ -3,31 +3,30 @@ import { IdentityCreatedHandler } from 'src/context/identity/application/handler
 import { IdentityCreatedDomainEvent } from 'src/context/identity/domain/events/IdentityCreatedDomainEvent';
 
 describe('IdentityCreatedHandler', () => {
-    let handler: IdentityCreatedHandler;
+  let handler: IdentityCreatedHandler;
 
-    beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [IdentityCreatedHandler],
-        }).compile();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [IdentityCreatedHandler],
+    }).compile();
 
-        handler = module.get<IdentityCreatedHandler>(IdentityCreatedHandler);
+    handler = module.get<IdentityCreatedHandler>(IdentityCreatedHandler);
+  });
+
+  it('should be defined', () => {
+    expect(handler).toBeDefined();
+  });
+
+  it('should handle event', () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    const event = new IdentityCreatedDomainEvent({
+      aggregateId: '123',
+      accountId: 'ext-123',
     });
 
-    it('should be defined', () => {
-        expect(handler).toBeDefined();
-    });
+    handler.handle(event);
 
-    it('should handle event', () => {
-        const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-        const event = new IdentityCreatedDomainEvent({
-            aggregateId: '123',
-            provider: 'email',
-            externalId: 'ext-123',
-        });
-
-        handler.handle(event);
-
-        expect(consoleSpy).toHaveBeenCalled();
-        consoleSpy.mockRestore();
-    });
+    expect(consoleSpy).toHaveBeenCalled();
+    consoleSpy.mockRestore();
+  });
 });

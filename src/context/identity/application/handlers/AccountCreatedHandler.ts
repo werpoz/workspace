@@ -5,7 +5,8 @@ import { Injectable } from '@nestjs/common';
 @EventsHandler(AccountCreatedDomainEvent)
 @Injectable()
 export class AccountCreatedHandler
-  implements IEventHandler<AccountCreatedDomainEvent> {
+  implements IEventHandler<AccountCreatedDomainEvent>
+{
   handle(event: AccountCreatedDomainEvent) {
     console.log(
       '[AccountCreatedHandler] account created:',

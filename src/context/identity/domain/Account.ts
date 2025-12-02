@@ -29,7 +29,7 @@ export class Account extends AggregateRoot {
     password: Password,
     email: Email,
   ): Account {
-    const account = new Account(id, password, email, true);
+    const account = new Account(id, password, email, false);
     account.record(
       new AccountCreatedDomainEvent({
         aggregateId: id.value,

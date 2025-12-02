@@ -5,7 +5,7 @@ import { DomainEvent } from '../domain/DomainEvent';
 
 @Injectable()
 export class NestCqrsEventBus implements DomainEventBus {
-  constructor(private readonly eventBus: EventBus) { }
+  constructor(private readonly eventBus: EventBus) {}
 
   async publish(event: DomainEvent): Promise<void> {
     this.eventBus.publish(event);

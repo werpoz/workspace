@@ -1,10 +1,10 @@
 import { EnumValueObject } from 'src/context/shared/domain/value-object/EnumValueObject';
 
-export type ProviderType = 'email' | 'google' | 'magic-link' | 'clerk';
+export type ProviderType = 'email';
 
 export class Provider extends EnumValueObject<ProviderType> {
   constructor(value: ProviderType) {
-    super(value, ['email', 'google', 'magic-link', 'clerk']);
+    super(value, ['email']);
   }
 
   protected throwErrorForInvalidValue(value: ProviderType): void {

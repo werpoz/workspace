@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { IdentityModule } from './context/identity/identity.module';
+import { NotifierModule } from './context/notifier/notifier.module';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 
@@ -10,12 +11,11 @@ import Joi from 'joi';
       isGlobal: true,
       validationSchema: Joi.object({
         PORT: Joi.number().required(),
-        CLERK_SECRET_KEY: Joi.string().required(),
-        CLERK_PUBLISHABLE_KEY: Joi.string().required(),
       }),
     }),
     CqrsModule.forRoot(),
     IdentityModule,
+    NotifierModule,
   ],
   controllers: [],
   providers: [],
