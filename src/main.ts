@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.enableCors();
   const configService = app.get(ConfigService);
 
   // Swagger Configuration
@@ -16,7 +17,15 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('docs', app, document, {
+    customCssUrl: '/docs/swagger-ui.css',
+    customJs: [
+      '/docs/swagger-ui-bundle.js',
+      '/docs/swagger-ui-standalone-preset.js',
+      '/docs/swagger-ui-init.js',
+    ],
+  });
+
 
   const port = configService.getOrThrow<number>('PORT');
 
