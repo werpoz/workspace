@@ -1,6 +1,6 @@
 # Workspace - NestJS DDD Project
 
-A production-ready NestJS application built with Domain-Driven Design (DDD) and Hexagonal Architecture principles, featuring authentication via Clerk and comprehensive test coverage.
+A production-ready NestJS application built with Domain-Driven Design (DDD) and Hexagonal Architecture principles, featuring custom authentication with email verification and comprehensive test coverage.
 
 ## 🏗️ Architecture
 
@@ -25,6 +25,7 @@ src/
 - **Dependency Injection**: NestJS IoC container for loose coupling
 - **Repository Pattern**: Abstraction over data persistence
 - **Value Objects**: Immutable domain primitives with validation
+- **Email Verification**: Robust verification system with code/link support and expiration logic
 
 ## 🚀 Quick Start
 
@@ -42,16 +43,12 @@ pnpm install
 # Copy environment variables
 cp .env.example .env
 
-# Configure your Clerk credentials in .env
-```
-
 ### Environment Variables
 
 ```env
 PORT=3000
-CLERK_SECRET_KEY=sk_test_...
-CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_WEBHOOK_SECRET=whsec_...
+JWT_SECRET=your_jwt_secret
+EMAIL_PROVIDER=test
 ```
 
 ### Running the Application
@@ -156,12 +153,13 @@ pnpm run lint
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
 
 ## 🔐 Authentication
-
-This project uses [Clerk](https://clerk.com) for authentication:
-
-- **ClerkAuthGuard**: Protects routes with JWT verification
-- **Webhook Integration**: Handles user creation events from Clerk
-- **External Account Registration**: Automatically creates accounts for Clerk users
+ 
+ This project uses a custom authentication system with:
+ 
+ - **JWT Strategy**: Protects routes with JWT verification
+ - **Email Verification**: Ensures account validity via 6-digit codes
+ - **Secure Password Hashing**: Uses bcrypt for password security
+ - **Event-Driven Registration**: Decoupled registration and verification flows
 
 ## 📚 Key Concepts
 
@@ -222,7 +220,6 @@ This project is [UNLICENSED](LICENSE).
 
 Built with:
 - [NestJS](https://nestjs.com/) - Progressive Node.js framework
-- [Clerk](https://clerk.com/) - Authentication and user management
 - [Jest](https://jestjs.io/) - Testing framework
 - [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
 

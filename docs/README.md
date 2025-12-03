@@ -19,6 +19,11 @@ Welcome to the Workspace project documentation! This index will help you find th
   - Layer responsibilities
   - Design patterns used
 
+- **[EMAIL_VERIFICATION.md](./EMAIL_VERIFICATION.md)** - Email Verification System details
+  - Architecture and flow
+  - API Endpoints
+  - Configuration
+
 - **[TESTING.md](./TESTING.md)** - Testing guide and best practices
   - Testing philosophy
   - Test types (unit, integration, e2e)

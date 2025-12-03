@@ -25,7 +25,7 @@ workspace/
 
 **Identity Context** handles:
 - User account management
-- External authentication (Clerk integration)
+- Custom authentication with JWT and Email Verification
 - Identity creation and management
 
 #### Strategic Design Patterns
@@ -569,8 +569,9 @@ export class IdentityModule {}
 
 ### Authentication
 
-- JWT tokens verified via Clerk
-- ClerkAuthGuard protects routes
+- JWT tokens verified via JwtStrategy
+- LocalAuthGuard for login
+- JwtAuthGuard protects routes
 - Webhook signature verification
 
 ### Authorization

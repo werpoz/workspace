@@ -66,7 +66,7 @@ pnpm install
 # Copy environment variables
 cp .env.example .env
 
-# Configure your Clerk credentials in .env
+# Configure your environment variables in .env
 ```
 
 ### Verify Setup

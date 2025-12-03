@@ -424,28 +424,10 @@ describe('EmailCreateEventWebhook', () => {
 #### Guards
 
 ```typescript
-describe('ClerkAuthGuard', () => {
-  let guard: ClerkAuthGuard;
-
-  beforeEach(() => {
-    guard = new ClerkAuthGuard({} as any);
-  });
-
-  it('should allow access with valid token', async () => {
-    const context = {
-      switchToHttp: () => ({
-        getRequest: () => ({
-          headers: {
-            authorization: 'Bearer valid-token',
-          },
-        }),
-      }),
-    } as any;
-
-    (clerkClient.verifyToken as jest.Mock).mockResolvedValue({ sub: 'user_123' });
-
-    const result = await guard.canActivate(context);
-    expect(result).toBe(true);
+describe('JwtAuthGuard', () => {
+  let guard: JwtAuthGuard;
+  // ... test setup
+});  expect(result).toBe(true);
   });
 
   it('should deny access without token', async () => {
