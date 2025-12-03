@@ -21,7 +21,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject('DomainEventBus')
     private readonly eventBus: DomainEventBus,
-  ) {}
+  ) { }
 
   async register(email: string, plainPassword: string) {
     const existingAccount = await this.accounts.searchByEmail(email);
@@ -46,8 +46,11 @@ export class AuthService {
 
     await this.eventBus.publishAll(account.pullDomainEvents());
 
-    const { password, ...result } = account.toPrimitives();
-    return result;
+    return {
+      id: account.id.value,
+      email: account.email.value,
+      status: account.status.value,
+    };
   }
 
   async validateAccount(email: string, plainPassword: string) {

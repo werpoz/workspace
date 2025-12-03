@@ -10,6 +10,10 @@ import { JwtStrategy } from './application/service/jwt.strategy';
 import { AuthService } from './application/service/auth.service';
 import { LocalStrategy } from './application/service/local.strategy';
 import { AuthController } from './infrastructure/http/controller/AuthController';
+import { InMemoryEmailVerificationRepository } from './infrastructure/persistence/memmory/InMemoryEmailVerificationRepository';
+import { RequestAccountVerificationUseCase } from './application/RequestAccountVerificationUseCase';
+import { VerifyAccountByCodeUseCase } from './application/VerifyAccountByCodeUseCase';
+import { ResendVerificationUseCase } from './application/ResendVerificationUseCase';
 
 @Module({
   imports: [
@@ -28,6 +32,9 @@ import { AuthController } from './infrastructure/http/controller/AuthController'
     LocalStrategy,
     AccountCreatedHandler,
     IdentityCreatedHandler,
+    RequestAccountVerificationUseCase,
+    VerifyAccountByCodeUseCase,
+    ResendVerificationUseCase,
     {
       provide: 'AccountRepository',
       useClass: InMemmoryAccountRepository,
@@ -36,7 +43,12 @@ import { AuthController } from './infrastructure/http/controller/AuthController'
       provide: 'IdentityRepository',
       useClass: InMemmoryIdentityRepository,
     },
+    {
+      provide: 'EmailVerificationRepository',
+      useClass: InMemoryEmailVerificationRepository,
+    },
   ],
-  exports: [AuthService],
+  exports: [AuthService, RequestAccountVerificationUseCase],
 })
-export class IdentityModule {}
+export class IdentityModule { }
+

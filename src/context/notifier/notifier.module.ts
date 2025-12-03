@@ -6,6 +6,7 @@ import {
   EmailProvider,
 } from './infrastructure/email/EmailSenderFactory';
 import { AccountCreatedEmailHandler } from './application/handlers/AccountCreatedEmailHandler';
+import { AccountVerificationRequestedEmailHandler } from './application/handlers/AccountVerificationRequestedEmailHandler';
 import { EventBusModule } from '../shared/eventBus.module';
 
 @Module({
@@ -13,6 +14,7 @@ import { EventBusModule } from '../shared/eventBus.module';
   providers: [
     SendEmailUseCase,
     AccountCreatedEmailHandler,
+    AccountVerificationRequestedEmailHandler,
     {
       provide: 'EmailSender',
       useFactory: (configService: ConfigService) => {
@@ -32,4 +34,5 @@ import { EventBusModule } from '../shared/eventBus.module';
   ],
   exports: [SendEmailUseCase],
 })
-export class NotifierModule {}
+export class NotifierModule { }
+
