@@ -3,20 +3,20 @@ import { DomainEvent } from 'src/context/shared/domain/DomainEvent';
 export class AuctionPublishedDomainEvent extends DomainEvent {
     static readonly EVENT_NAME = 'auction.published';
 
-    readonly title: string;
+    readonly itemId: string;
     readonly startingPrice: number;
     readonly endsAt: string;
 
     constructor({
         aggregateId,
-        title,
+        itemId,
         startingPrice,
         endsAt,
         eventId,
         occurredOn,
     }: {
         aggregateId: string;
-        title: string;
+        itemId: string;
         startingPrice: number;
         endsAt: string;
         eventId?: string;
@@ -28,7 +28,7 @@ export class AuctionPublishedDomainEvent extends DomainEvent {
             eventId,
             occurredOn,
         });
-        this.title = title;
+        this.itemId = itemId;
         this.startingPrice = startingPrice;
         this.endsAt = endsAt;
     }
@@ -36,7 +36,7 @@ export class AuctionPublishedDomainEvent extends DomainEvent {
     toPrimitives() {
         return {
             aggregateId: this.aggregateId,
-            title: this.title,
+            itemId: this.itemId,
             startingPrice: this.startingPrice,
             endsAt: this.endsAt,
             eventName: AuctionPublishedDomainEvent.EVENT_NAME,
@@ -51,10 +51,10 @@ export class AuctionPublishedDomainEvent extends DomainEvent {
         eventId: string;
         occurredOn: Date;
     }): DomainEvent {
-        const { title, startingPrice, endsAt } = params.attributes;
+        const { itemId, startingPrice, endsAt } = params.attributes;
         return new AuctionPublishedDomainEvent({
             aggregateId: params.aggregateId,
-            title,
+            itemId,
             startingPrice,
             endsAt,
             eventId: params.eventId,

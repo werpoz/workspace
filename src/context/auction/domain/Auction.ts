@@ -1,6 +1,6 @@
 import { AggregateRoot } from 'src/context/shared/domain/AggregateRoot';
 import { AuctionId } from './value-object/AuctionId.vo';
-import { AuctionTitle } from './value-object/AuctionTitle.vo';
+import { ItemId } from './value-object/ItemId.vo';
 import { StartingPrice } from './value-object/StartingPrice.vo';
 import { AuctionStatus } from './value-object/AuctionStatus.vo';
 import { Bid } from './Bid';
@@ -13,7 +13,7 @@ import { AuctionPublishedDomainEvent } from './events/AuctionPublishedDomainEven
 
 export class Auction extends AggregateRoot {
     readonly id: AuctionId;
-    readonly title: AuctionTitle;
+    readonly itemId: ItemId;
     readonly startingPrice: StartingPrice;
     private _status: AuctionStatus;
     private _bids: Bid[];
@@ -22,7 +22,7 @@ export class Auction extends AggregateRoot {
 
     constructor(
         id: AuctionId,
-        title: AuctionTitle,
+        itemId: ItemId,
         startingPrice: StartingPrice,
         status: AuctionStatus,
         bids: Bid[],
@@ -31,7 +31,7 @@ export class Auction extends AggregateRoot {
     ) {
         super();
         this.id = id;
-        this.title = title;
+        this.itemId = itemId;
         this.startingPrice = startingPrice;
         this._status = status;
         this._bids = bids;
@@ -41,13 +41,13 @@ export class Auction extends AggregateRoot {
 
     static create(
         id: AuctionId,
-        title: AuctionTitle,
+        itemId: ItemId,
         startingPrice: StartingPrice,
         endsAt: Date,
     ): Auction {
         const auction = new Auction(
             id,
-            title,
+            itemId,
             startingPrice,
             AuctionStatus.draft(),
             [],
@@ -58,7 +58,7 @@ export class Auction extends AggregateRoot {
         auction.record(
             new AuctionCreatedDomainEvent({
                 aggregateId: id.value,
-                title: title.value,
+                itemId: itemId.value,
                 startingPrice: startingPrice.value,
                 endsAt: endsAt.toISOString(),
             }),
@@ -124,7 +124,7 @@ export class Auction extends AggregateRoot {
         this.record(
             new AuctionPublishedDomainEvent({
                 aggregateId: this.id.value,
-                title: this.title.value,
+                itemId: this.itemId.value,
                 startingPrice: this.startingPrice.value,
                 endsAt: this.endsAt.toISOString(),
             }),
@@ -134,7 +134,7 @@ export class Auction extends AggregateRoot {
     toPrimitives() {
         return {
             id: this.id.value,
-            title: this.title.value,
+            itemId: this.itemId.value,
             startingPrice: this.startingPrice.value,
             status: this._status.value,
             bids: this._bids.map((b) => b.toPrimitives()),
