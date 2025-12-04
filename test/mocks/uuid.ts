@@ -1,7 +1,9 @@
 let count = 0;
 export const v4 = () => {
   count++;
-  return `550e8400-e29b-41d4-a716-44665544000${count}`;
+  // Pad count to ensure it's always 3 digits max (000-999)
+  const paddedCount = String(count).padStart(3, '0').slice(-3);
+  return `550e8400-e29b-41d4-a716-4466554400${paddedCount.slice(0, 2)}`;
 };
 
 // Proper UUID validation regex

@@ -6,9 +6,8 @@ import { SendEmailUseCase } from '../SendEmailUseCase';
 @EventsHandler(AccountCreatedDomainEvent)
 @Injectable()
 export class AccountCreatedEmailHandler
-  implements IEventHandler<AccountCreatedDomainEvent>
-{
-  constructor(private readonly sendEmailUseCase: SendEmailUseCase) {}
+  implements IEventHandler<AccountCreatedDomainEvent> {
+  constructor(private readonly sendEmailUseCase: SendEmailUseCase) { }
 
   async handle(event: AccountCreatedDomainEvent): Promise<void> {
     if (!event.email) {

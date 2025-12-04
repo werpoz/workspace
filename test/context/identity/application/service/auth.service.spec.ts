@@ -68,7 +68,7 @@ describe('AuthService', () => {
 
       expect(result).toBeDefined();
       expect(result.email).toBe('newuser@example.com');
-      expect(result.isActive).toBe(false);
+      expect(result.status).toBe('pending_verification');
       expect(accountRepository.searchByEmail).toHaveBeenCalledWith(
         'newuser@example.com',
       );
@@ -78,10 +78,10 @@ describe('AuthService', () => {
 
     it('should throw BadRequestException when email already exists', async () => {
       const existingAccount = Account.fromPrimitives({
-        id: '123',
+        id: '550e8400-e29b-41d4-a716-446655440001',
         email: 'existing@example.com',
         password: 'hashedpassword123',
-        isActive: true,
+        status: 'active',
       });
 
       jest
@@ -116,7 +116,7 @@ describe('AuthService', () => {
         id: accountId.value,
         password: hashedPassword,
         email: email.value,
-        isActive: false, // Inactive account
+        status: 'pending_verification', // Inactive account
       });
 
       jest
@@ -150,7 +150,7 @@ describe('AuthService', () => {
         id: accountId.value,
         password: hashedPassword,
         email: email.value,
-        isActive: true,
+        status: 'active',
       });
 
       jest.spyOn(accountRepository, 'searchByEmail').mockResolvedValue(account);
@@ -174,7 +174,7 @@ describe('AuthService', () => {
         id: accountId.value,
         password: hashedPassword,
         email: email.value,
-        isActive: true,
+        status: 'active',
       });
 
       jest.spyOn(accountRepository, 'searchByEmail').mockResolvedValue(account);
@@ -201,9 +201,9 @@ describe('AuthService', () => {
       jest.spyOn(jwtService, 'sign').mockReturnValue(mockToken);
 
       const mockAccount = Account.fromPrimitives({
-        id: mockUser.id,
+        id: '550e8400-e29b-41d4-a716-446655440002',
         email: mockUser.email,
-        isActive: mockUser.isActive,
+        status: 'pending_verification',
         password: undefined,
       });
 

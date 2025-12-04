@@ -33,9 +33,9 @@ export class EmailSenderFactory {
           secure: false,
           auth: config?.smtpUser
             ? {
-                user: config.smtpUser,
-                pass: config.smtpPass || '',
-              }
+              user: config.smtpUser,
+              pass: config.smtpPass || '',
+            }
             : undefined,
         });
         return new NodemailerEmailSender(transporter);
