@@ -6,10 +6,12 @@ import { CreateAuctionUseCase } from './application/CreateAuctionUseCase';
 import { PublishAuctionUseCase } from './application/PublishAuctionUseCase';
 import { PlaceBidUseCase } from './application/PlaceBidUseCase';
 import { CreateItemUseCase } from './application/CreateItemUseCase';
+import { AuctionController } from './infrastructure/http/controller/AuctionController';
+import { ItemController } from './infrastructure/http/controller/ItemController';
 
 @Module({
     imports: [EventBusModule],
-    controllers: [],
+    controllers: [AuctionController, ItemController],
     providers: [
         // Use Cases
         CreateAuctionUseCase,
