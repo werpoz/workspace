@@ -4,6 +4,7 @@ import { IdentityModule } from './context/identity/identity.module';
 import { NotifierModule } from './context/notifier/notifier.module';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
+import { AuctionModule } from './context/auction/auction.module';
 
 @Module({
   imports: [
@@ -16,8 +17,9 @@ import Joi from 'joi';
     CqrsModule.forRoot(),
     IdentityModule,
     NotifierModule,
+    AuctionModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
