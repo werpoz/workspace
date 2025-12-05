@@ -43,4 +43,9 @@ describe('AuctionStatus', () => {
             expect(() => new AuctionStatus(status)).not.toThrow();
         });
     });
+
+    it('should create cancelled status using factory method', () => {
+        const status = AuctionStatus.cancelled();
+        expect(status.value).toBe('cancelled');
+    });
 });

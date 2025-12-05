@@ -22,6 +22,31 @@ describe('ItemCategory', () => {
         expect(category.value).toBe('home');
     });
 
+    it('should create sports category using factory method', () => {
+        const category = ItemCategory.sports();
+        expect(category.value).toBe('sports');
+    });
+
+    it('should create art category using factory method', () => {
+        const category = ItemCategory.art();
+        expect(category.value).toBe('art');
+    });
+
+    it('should create collectibles category using factory method', () => {
+        const category = ItemCategory.collectibles();
+        expect(category.value).toBe('collectibles');
+    });
+
+    it('should create books category using factory method', () => {
+        const category = ItemCategory.books();
+        expect(category.value).toBe('books');
+    });
+
+    it('should create other category using factory method', () => {
+        const category = ItemCategory.other();
+        expect(category.value).toBe('other');
+    });
+
     it('should throw error for invalid category', () => {
         expect(() => new ItemCategory('invalid' as any)).toThrow(InvalidArgumentError);
     });

@@ -82,17 +82,22 @@
     },
     "collectCoverageFrom": [
       "src/**/*.(t|j)s",
-      "!src/main.ts",
+      "!src/**/*.interface.ts",
       "!src/**/*.module.ts",
-      "!src/context/identity/application/handlers/ExternalUserCreatedHandler.ts",
-      "!src/context/identity/infrastructure/http/webhook/EmailCreatedEventWebhook.ts",
-      "!src/context/shared/infrastructure/NestCqrsEventBus.ts"
+      "!src/**/index.ts",
+      "!src/**/infrastructure/**",
+      "!src/main.ts"
+    ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      ".strategy.ts$",
+      ".guard.ts$"
     ],
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/src",
-      "<rootDir>/test"
+      "<rootDir>/src/",
+      "<rootDir>/test/"
     ],
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/src/$1",

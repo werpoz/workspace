@@ -22,6 +22,16 @@ describe('ItemCondition', () => {
         expect(condition.value).toBe('good');
     });
 
+    it('should create fair condition using factory method', () => {
+        const condition = ItemCondition.fair();
+        expect(condition.value).toBe('fair');
+    });
+
+    it('should create poor condition using factory method', () => {
+        const condition = ItemCondition.poor();
+        expect(condition.value).toBe('poor');
+    });
+
     it('should throw error for invalid condition', () => {
         expect(() => new ItemCondition('invalid' as any)).toThrow(InvalidArgumentError);
     });

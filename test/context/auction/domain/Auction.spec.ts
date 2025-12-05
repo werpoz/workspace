@@ -255,5 +255,24 @@ describe('Auction Aggregate', () => {
                 endsAt: futureDate.toISOString(),
             });
         });
+
+        it('should convert auction with bids to primitives', () => {
+            const auction = Auction.create(
+                validAuctionId,
+                validItemId,
+                validStartingPrice,
+                futureDate,
+            );
+            auction.publish();
+
+            const bidderId = AccountID.random();
+            auction.placeBid(new BidAmount(150), bidderId);
+
+            const primitives = auction.toPrimitives();
+
+            expect(primitives.bids).toHaveLength(1);
+            expect(primitives.bids[0].amount).toBe(150);
+            expect(primitives.bids[0].bidderId).toBe(bidderId.value);
+        });
     });
 });
