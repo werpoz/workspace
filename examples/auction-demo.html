@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Auction Demo</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-purple-600 to-indigo-700 min-h-screen p-6">
+    <div x-data="auctionApp()" class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-white mb-2">🔥 Real-Time Auction Demo</h1>
+            <p class="text-purple-200">Watch bids update instantly</p>
+        </div>
+
+        <!-- Connection Card -->
+        <div class="bg-white rounded-lg shadow-xl p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800">Connection</h2>
+                <div class="flex items-center gap-2">
+                    <div :class="connected ? 'bg-green-500' : 'bg-red-500'" class="w-3 h-3 rounded-full animate-pulse">
+                    </div>
+                    <span x-text="connected ? 'Connected' : 'Disconnected'" class="text-sm font-medium"></span>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <p class="text-sm text-yellow-800">
+                    <strong>Quick Start:</strong> Run <code
+                        class="bg-yellow-100 px-1">./examples/demo-auction.sh</code>,
+                    paste Auction ID below, click Join, and watch!
+                </p>
+            </div>
+
+            <!-- Controls -->
+            <div class="space-y-3">
+                <input x-model="auctionId" type="text" placeholder="Enter Auction ID"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                <div class="flex gap-2">
+                    <button @click="join()"
+                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                        Join Auction
+                    </button>
+                    <button @click="leave()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+                        Leave
+                    </button>
+                    <button @click="clear()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Auction Info -->
+            <div x-show="currentAuction" class="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <span class="text-gray-600">Auction:</span>
+                        <span class="font-mono text-xs block" x-text="currentAuction"></span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Status:</span>
+                        <span class="font-bold" x-text="status"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-3xl font-bold text-purple-600" x-text="stats.bids"></div>
+                <div class="text-sm text-gray-600">Bids</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-3xl font-bold text-purple-600" x-text="'$' + stats.price"></div>
+                <div class="text-sm text-gray-600">Current Price</div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 text-center">
+                <div class="text-3xl font-bold text-purple-600" x-text="stats.events"></div>
+                <div class="text-sm text-gray-600">Events</div>
+            </div>
+        </div>
+
+        <!-- Events -->
+        <div class="bg-white rounded-lg shadow-xl p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">📡 Live Events</h2>
+            <div class="space-y-3 max-h-96 overflow-y-auto">
+                <template x-if="events.length === 0">
+                    <div class="text-center py-12 text-gray-400">
+                        <div class="text-6xl mb-3">🎪</div>
+                        <div>Waiting for events...</div>
+                    </div>
+                </template>
+
+                <template x-for="event in events" :key="event.id">
+                    <div :class="{
+                        'border-l-green-500': event.type === 'bid',
+                        'border-l-orange-500': event.type === 'published',
+                        'border-l-red-500': event.type === 'ended',
+                        'border-l-blue-500': event.type === 'system'
+                    }" class="border-l-4 bg-gray-50 p-4 rounded-r-lg">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-bold text-gray-800" x-text="event.title"></span>
+                            <span class="text-xs text-gray-500" x-text="event.time"></span>
+                        </div>
+                        <div class="text-sm text-gray-600" x-html="event.details"></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function auctionApp() {
+            return {
+                socket: null,
+                connected: false,
+                auctionId: '',
+                currentAuction: null,
+                status: 'Active',
+                stats: { bids: 0, price: 0, events: 0 },
+                events: [],
+
+                init() {
+                    this.connect();
+                },
+
+                connect() {
+                    this.socket = io('http://localhost:8000/auctions', {
+                        transports: ['websocket']
+                    });
+
+                    this.socket.on('connect', () => {
+                        this.connected = true;
+                        this.addEvent('system', '✅ Connected', 'Connected to WebSocket server');
+                    });
+
+                    this.socket.on('disconnect', () => {
+                        this.connected = false;
+                        this.addEvent('system', '❌ Disconnected', 'Lost connection to server');
+                    });
+
+                    this.socket.on('new-bid', (data) => {
+                        this.stats.bids++;
+                        this.stats.price = data.amount;
+                        this.stats.events++;
+                        this.addEvent('bid', '💰 New Bid', `
+                            <strong>Amount:</strong> $${data.amount}<br>
+                            <strong>Bidder:</strong> ${data.bidderId.substring(0, 8)}...
+                        `);
+                    });
+
+                    this.socket.on('auction-published', (data) => {
+                        this.stats.events++;
+                        this.addEvent('published', '📢 Published', `
+                            Auction <strong>${data.id.substring(0, 8)}...</strong> is now live!
+                        `);
+                    });
+
+                    this.socket.on('auction-ended', (data) => {
+                        this.stats.events++;
+                        this.status = 'Closed';
+                        this.addEvent('ended', '🏁 Ended', `
+                            ${data.winnerId ? `Winner: ${data.winnerId.substring(0, 8)}... | Final: $${data.finalPrice}` : 'No bids placed'}
+                        `);
+                    });
+                },
+
+                join() {
+                    if (!this.auctionId.trim()) {
+                        alert('Enter an Auction ID first');
+                        return;
+                    }
+
+                    this.socket.emit('join-auction', this.auctionId.trim(), (response) => {
+                        this.currentAuction = this.auctionId.trim();
+                        this.addEvent('system', '🎪 Joined', `Watching auction ${this.auctionId.substring(0, 8)}...`);
+                    });
+                },
+
+                leave() {
+                    if (!this.currentAuction) return;
+                    this.socket.emit('leave-auction', this.currentAuction);
+                    this.addEvent('system', '👋 Left', `Stopped watching ${this.currentAuction.substring(0, 8)}...`);
+                    this.currentAuction = null;
+                    this.status = 'Active';
+                },
+
+                clear() {
+                    this.events = [];
+                    this.stats = { bids: 0, price: 0, events: 0 };
+                },
+
+                addEvent(type, title, details) {
+                    this.events.unshift({
+                        id: Date.now(),
+                        type,
+                        title,
+                        details,
+                        time: new Date().toLocaleTimeString()
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

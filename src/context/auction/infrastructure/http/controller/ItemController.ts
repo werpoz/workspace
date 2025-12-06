@@ -40,7 +40,7 @@ export class ItemController {
     @ApiResponse({ status: 400, description: 'Invalid input' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     async createItem(@Body() createItemDto: CreateItemDto, @Req() req: any) {
-        const ownerId = new AccountID(req.user.accountId);
+        const ownerId = new AccountID(req.user.sub);
         const itemId = ItemId.random();
 
         await this.createItemUseCase.execute({

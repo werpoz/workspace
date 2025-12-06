@@ -103,7 +103,7 @@ export class AuctionController {
     @ApiResponse({ status: 400, description: 'Invalid bid' })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     async placeBid(@Param('id') id: string, @Body() placeBidDto: PlaceBidDto, @Req() req: any) {
-        const bidderId = new AccountID(req.user.accountId);
+        const bidderId = new AccountID(req.user.sub);
 
         try {
             await this.placeBidUseCase.execute({

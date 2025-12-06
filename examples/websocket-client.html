@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔥 Real-Time Auction Demo</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: #10b981;
+        }
+
+        .status-indicator.disconnected {
+            background: #ef4444;
+            animation: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .controls {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4b5563;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button.secondary {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        button.secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .auction-info {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .auction-info h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .events-container {
+            grid-column: 1 / -1;
+        }
+
+        .events-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .event-card {
+            background: #f9fafb;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            transition: transform 0.3s;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-card:hover {
+            transform: translateX(5px);
+        }
+
+        .event-card.new-bid {
+            border-left-color: #10b981;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, #f9fafb 100%);
+        }
+
+        .event-card.auction-published {
+            border-left-color: #f59e0b;
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, #f9fafb 100%);
+        }
+
+        .event-card.auction-ended {
+            border-left-color: #ef4444;
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, #f9fafb 100%);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .event-type {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .event-time {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .event-details {
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .event-data {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #1f2937;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+        }
+
+        /* Scrollbar styling */
+        .events-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .events-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .events-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .instruction {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .instruction-title {
+            font-weight: bold;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+
+        .instruction-text {
+            color: #78350f;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 Real-Time Auction Demo</h1>
+            <p>Watch bids update instantly via WebSocket</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Connection Card -->
+            <div class="card">
+                <h2>
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    Connection Status
+                </h2>
+
+                <div class="instruction">
+                    <div class="instruction-title">📝 Quick Start</div>
+                    <div class="instruction-text">
+                        1. Run <code>./examples/demo-auction.sh</code><br>
+                        2. Enter the Auction ID below<br>
+                        3. Click "Join Auction"<br>
+                        4. Watch events appear in real-time!
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <div class="input-group">
+                        <label for="auctionId">Auction ID</label>
+                        <input type="text" id="auctionId" placeholder="Enter auction ID from demo script">
+                    </div>
+
+                    <div class="button-group">
+                        <button class="primary" onclick="joinAuction()">Join Auction</button>
+                        <button class="secondary" onclick="leaveAuction()">Leave</button>
+                        <button class="secondary" onclick="clearEvents()">Clear Events</button>
+                    </div>
+                </div>
+
+                <div class="auction-info" id="auctionInfo" style="display: none;">
+                    <h3>Auction Details</h3>
+                    <div class="info-row">
+                        <span class="info-label">Auction ID:</span>
+                        <span class="info-value" id="currentAuctionId">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value" id="auctionStatus">Active</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Watchers:</span>
+                        <span class="info-value" id="watcherCount">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="card">
+                <h2>📊 Live Statistics</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="bidCount">0</div>
+                        <div class="stat-label">Total Bids</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="currentPrice">$0</div>
+                        <div class="stat-label">Current Price</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="eventsCount">0</div>
+                        <div class="stat-label">Events Received</div>
+                    </div>
+                </div>
+
+                <div class="auction-info">
+                    <h3>Last Event</h3>
+                    <div class="info-row">
+                        <span class="info-label">Type:</span>
+                        <span class="info-value" id="lastEventType">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Time:</span>
+                        <span class="info-value" id="lastEventTime">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Events Card -->
+            <div class="card events-container">
+                <h2>📡 Real-Time Events</h2>
+                <div class="events-list" id="eventsList">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎪</div>
+                        <div class="empty-state-text">Waiting for events...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let currentAuctionId = null;
+        let stats = { bidCount: 0, currentPrice: 0, eventsCount: 0 };
+
+        // Connect to WebSocket
+        function connect() {
+            socket = io('http://localhost:8000/auctions', {
+                transports: ['websocket'],
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionAttempts: 5
+            });
+
+            socket.on('connect', () => {
+                updateConnectionStatus(true);
+                addSystemEvent('Connected to server');
+            });
+
+            socket.on('disconnect', () => {
+                updateConnectionStatus(false);
+                addSystemEvent('Disconnected from server');
+            });
+
+            socket.on('new-bid', (data) => {
+                addBidEvent(data);
+                stats.bidCount++;
+                stats.currentPrice = data.amount;
+                stats.eventsCount++;
+                updateStats();
+                updateLastEvent('New Bid', new Date(data.timestamp));
+            });
+
+            socket.on('auction-published', (data) => {
+                addPublishedEvent(data);
+                stats.eventsCount++;
+                updateStats();
+                updateLastEvent('Auction Published', new Date(data.publishedAt));
+            });
+
+            socket.on('auction-ended', (data) => {
+                addEndedEvent(data);
+                stats.eventsCount++;
+                updateStats();
+                updateLastEvent('Auction Ended', new Date(data.endedAt));
+                document.getElementById('auctionStatus').textContent = 'Closed';
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('Connection error:', error);
+                addSystemEvent('Connection error: ' + error.message, 'error');
+            });
+        }
+
+        function joinAuction() {
+            const auctionId = document.getElementById('auctionId').value.trim();
+            if (!auctionId) {
+                alert('Please enter an auction ID');
+                return;
+            }
+
+            if (!socket || !socket.connected) {
+                addSystemEvent('Not connected. Connecting...', 'warning');
+                connect();
+                setTimeout(() => joinAuction(), 1000);
+                return;
+            }
+
+            socket.emit('join-auction', auctionId, (response) => {
+                currentAuctionId = auctionId;
+                document.getElementById('auctionInfo').style.display = 'block';
+                document.getElementById('currentAuctionId').textContent = auctionId;
+                document.getElementById('watcherCount').textContent = '1+';
+                addSystemEvent(`Joined auction: ${auctionId}`, 'success');
+            });
+        }
+
+        function leaveAuction() {
+            if (!currentAuctionId) {
+                addSystemEvent('Not in any auction', 'warning');
+                return;
+            }
+
+            socket.emit('leave-auction', currentAuctionId, (response) => {
+                addSystemEvent(`Left auction: ${currentAuctionId}`, 'info');
+                currentAuctionId = null;
+                document.getElementById('auctionInfo').style.display = 'none';
+            });
+        }
+
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.className = `status-indicator ${connected ? 'connected' : 'disconnected'}`;
+        }
+
+        function addBidEvent(data) {
+            const eventHtml = `
+                <div class="event-card new-bid">
+                    <div class="event-header">
+                        <span class="event-type">💰 New Bid Placed</span>
+                        <span class="event-time">${new Date(data.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                    <div class="event-details">
+                        <strong>Amount:</strong> $${data.amount}<br>
+                        <strong>Bidder ID:</strong> ${data.bidderId.substring(0, 8)}...<br>
+                        <strong>Bid ID:</strong> ${data.bidId.substring(0, 8)}...
+                    </div>
+                </div>
+            `;
+            prependEvent(eventHtml);
+        }
+
+        function addPublishedEvent(data) {
+            const eventHtml = `
+                <div class="event-card auction-published">
+                    <div class="event-header">
+                        <span class="event-type">📢 Auction Published</span>
+                        <span class="event-time">${new Date(data.publishedAt).toLocaleTimeString()}</span>
+                    </div>
+                    <div class="event-details">
+                        <strong>Auction ID:</strong> ${data.id}<br>
+                        <strong>Status:</strong> ${data.status}
+                    </div>
+                </div>
+            `;
+            prependEvent(eventHtml);
+        }
+
+        function addEndedEvent(data) {
+            const eventHtml = `
+                <div class="event-card auction-ended">
+                    <div class="event-header">
+                        <span class="event-type">🏁 Auction Ended</span>
+                        <span class="event-time">${new Date(data.endedAt).toLocaleTimeString()}</span>
+                    </div>
+                    <div class="event-details">
+                        ${data.winnerId ? `<strong>Winner:</strong> ${data.winnerId.substring(0, 8)}...<br>` : ''}
+                        ${data.finalPrice ? `<strong>Final Price:</strong> $${data.finalPrice}` : 'No bids placed'}
+                    </div>
+                </div>
+            `;
+            prependEvent(eventHtml);
+        }
+
+        function addSystemEvent(message, type = 'info') {
+            const eventHtml = `
+                <div class="event-card">
+                    <div class="event-header">
+                        <span class="event-type">ℹ️ System</span>
+                        <span class="event-time">${new Date().toLocaleTimeString()}</span>
+                    </div>
+                    <div class="event-details">${message}</div>
+                </div>
+            `;
+            prependEvent(eventHtml);
+        }
+
+        function prependEvent(html) {
+            const eventsList = document.getElementById('eventsList');
+            const emptyState = eventsList.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            eventsList.insertAdjacentHTML('afterbegin', html);
+        }
+
+        function updateStats() {
+            document.getElementById('bidCount').textContent = stats.bidCount;
+            document.getElementById('currentPrice').textContent = `$${stats.currentPrice}`;
+            document.getElementById('eventsCount').textContent = stats.eventsCount;
+        }
+
+        function updateLastEvent(type, time) {
+            document.getElementById('lastEventType').textContent = type;
+            document.getElementById('lastEventTime').textContent = time.toLocaleTimeString();
+        }
+
+        function clearEvents() {
+            const eventsList = document.getElementById('eventsList');
+            eventsList.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🎪</div>
+                    <div class="empty-state-text">Waiting for events...</div>
+                </div>
+            `;
+            stats = { bidCount: 0, currentPrice: 0, eventsCount: 0 };
+            updateStats();
+        }
+
+        // Auto-connect on load
+        connect();
+    </script>
+</body>
+
+</html>

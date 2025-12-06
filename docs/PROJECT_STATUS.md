@@ -13,7 +13,7 @@
 - ✅ JWT authentication
 - ✅ Create items for auction
 - ✅ Create and publish auctions
-- ✅ Place bids with validation
+- ✅ Place bids with validation (min increment, anti-sniping, no self-bidding)
 - ✅ Email notifications
 - ✅ Swagger API documentation
 

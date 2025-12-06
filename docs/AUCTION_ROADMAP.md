@@ -18,14 +18,14 @@
 **Por qué es crítico**: Actualmente las subastas NO tienen un "producto" asociado. Solo tienen título y precio inicial.
 
 **Qué implementar**:
-- [ ] `Item` Aggregate Root con:
+- [x] `Item` Aggregate Root con:
   - `ItemId`, `ItemTitle`, `ItemDescription`
   - `ItemImages` (lista de URLs)
   - `ItemCategory` (electrónica, arte, etc.)
   - `ItemCondition` (nuevo, usado, etc.)
-- [ ] Relación `Auction` → `Item` (un auction tiene un item)
-- [ ] Modificar `Auction.create()` para requerir un `itemId`
-- [ ] Evento: `ItemCreatedDomainEvent`
+- [x] Relación `Auction` → `Item` (un auction tiene un item)
+- [x] Modificar `Auction.create()` para requerir un `itemId`
+- [x] Evento: `ItemCreatedDomainEvent`
 
 **Alternativa Simplificada**: 
 Si no quieres un aggregate separado, puedes hacer que `Item` sea un **Value Object** dentro de `Auction` (más simple pero menos flexible).
@@ -40,11 +40,12 @@ Si no quieres un aggregate separado, puedes hacer que `Item` sea un **Value Obje
 
 #### 2.1 Unit Tests
 - [ ] Tests para todos los Value Objects
-- [ ] Tests para `Auction` Aggregate:
+- [x] Tests para `Auction` Aggregate:
   - ✅ No se puede pujar si no está `active`
-  - ✅ Puja debe ser mayor al precio actual
-  - ✅ No se puede pujar después del `endsAt`
+  - ✅ Puja debe ser mayor al precio actual (Min Increment)
+  - ✅ No se puede pujar después del `endsAt` (Anti-sniping implemented)
   - ✅ `publish()` solo funciona en estado `draft`
+  - ✅ No self-bidding
 - [ ] Tests para `Bid` Entity
 - [ ] Tests para Use Cases (con mocks de repositorios)
 
@@ -53,37 +54,38 @@ Si no quieres un aggregate separado, puedes hacer que `Item` sea un **Value Obje
 ### **Fase 3: Infraestructura In-Memory** 🟢 MEDIA PRIORIDAD
 
 #### 3.1 Implementar Repositorio In-Memory
-- [ ] `InMemoryAuctionRepository`
+- [x] `InMemoryAuctionRepository`
   - `save()`, `searchById()`, `findAll()`, `findActive()`, etc.
-- [ ] (Opcional) `InMemoryItemRepository` si decides crear `Item`
+- [x] (Opcional) `InMemoryItemRepository` si decides crear `Item`
 
 #### 3.2 Módulo NestJS
-- [ ] Crear `AuctionModule`
-- [ ] Registrar Use Cases como providers
-- [ ] Registrar repositorios (in-memory por ahora)
-- [ ] Exportar Use Cases para uso en controllers
+- [x] Crear `AuctionModule`
+- [x] Registrar Use Cases como providers
+- [x] Registrar repositorios (in-memory por ahora)
+- [x] Exportar Use Cases para uso en controllers
 
 ---
 
 ### **Fase 4: API REST** 🟢 MEDIA PRIORIDAD
 
 #### 4.1 Controller y DTOs
-- [ ] `AuctionController` con endpoints:
+- [x] `AuctionController` con endpoints:
   - `POST /auctions` → Crear subasta
   - `GET /auctions` → Listar activas
   - `GET /auctions/:id` → Detalle
   - `POST /auctions/:id/publish` → Activar
   - `POST /auctions/:id/bids` → Pujar
   - `GET /auctions/:id/bids` → Historial de pujas
-- [ ] DTOs con validación (`class-validator`)
-- [ ] Swagger documentation
+- [x] DTOs con validación (`class-validator`)
+- [x] Swagger documentation
 
 #### 4.2 Guards y Permisos
   - `auction.ended` → Cuando termina
 
 #### 5.2 Event Handlers
-- [ ] `BidPlacedEventHandler` → Emite WebSocket
-- [ ] Integración con Redis Pub/Sub (para escalabilidad horizontal)
+#### 5.2 Event Handlers
+- [x] `BidPlacedEventHandler` → Emite WebSocket
+- [x] Integración con Redis Pub/Sub (para escalabilidad horizontal)
 
 ---
 
@@ -124,7 +126,7 @@ Si no quieres un aggregate separado, puedes hacer que `Item` sea un **Value Obje
 ### **Fase 7: Background Jobs** 🟠 NECESARIO
 
 #### 7.1 Scheduler (BullMQ + Redis)
-- [ ] Job: `CloseExpiredAuctionsJob`
+- [x] Job: `CloseExpiredAuctionsJob`
   - Corre cada minuto
   - Busca auctions con `endsAt < now()` y `status = active`
   - Cambia estado a `completed`
@@ -132,8 +134,8 @@ Si no quieres un aggregate separado, puedes hacer que `Item` sea un **Value Obje
   - Publica `AuctionCompletedDomainEvent`
 
 #### 7.2 Email Notifications
-- [ ] Email al ganador: "¡Ganaste la subasta!"
-- [ ] Email a usuarios outbid: "Te han superado"
+- [x] Email al ganador: "¡Ganaste la subasta!"
+- [x] Email a usuarios outbid: "Te han superado"
 
 ---
 
