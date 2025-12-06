@@ -79,19 +79,6 @@ Si no quieres un aggregate separado, puedes hacer que `Item` sea un **Value Obje
 - [ ] Swagger documentation
 
 #### 4.2 Guards y Permisos
-- [ ] Solo usuarios autenticados pueden crear subastas
-- [ ] Solo usuarios autenticados pueden pujar
-- [ ] Solo el creador puede publicar/cancelar su subasta
-
----
-
-### **Fase 5: Real-Time (WebSockets)** 🔵 OPCIONAL pero DESEABLE
-
-#### 5.1 WebSocket Gateway
-- [ ] `AuctionGateway` para eventos en tiempo real
-- [ ] Rooms por `auctionId` (usuarios se suscriben a una subasta)
-- [ ] Emitir eventos:
-  - `bid.placed` → Cuando alguien puja
   - `auction.ended` → Cuando termina
 
 #### 5.2 Event Handlers
