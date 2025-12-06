@@ -1,3 +1,4 @@
+import { DrizzleModule } from './context/shared/infrastructure/persistence/drizzle/drizzle.module';
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { IdentityModule } from './context/identity/identity.module';
@@ -17,7 +18,9 @@ import { AuctionModule } from './context/auction/auction.module';
     CqrsModule.forRoot(),
     IdentityModule,
     NotifierModule,
+    NotifierModule,
     AuctionModule,
+    DrizzleModule,
   ],
   controllers: [],
   providers: [],

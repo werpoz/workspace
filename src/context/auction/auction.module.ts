@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { EventBusModule } from '../shared/eventBus.module';
 import { NotifierModule } from '../notifier/notifier.module';
-import { InMemoryAuctionRepository } from './infrastructure/persistence/memory/InMemoryAuctionRepository';
+import { DrizzleAuctionRepository } from './infrastructure/persistence/drizzle/DrizzleAuctionRepository';
+import { DrizzleModule } from '../shared/infrastructure/persistence/drizzle/drizzle.module';
 import { InMemoryItemRepository } from './infrastructure/persistence/memory/InMemoryItemRepository';
+import { InMemoryAuctionRepository } from './infrastructure/persistence/memory/InMemoryAuctionRepository';
 import { CreateAuctionUseCase } from './application/CreateAuctionUseCase';
 import { PublishAuctionUseCase } from './application/PublishAuctionUseCase';
 import { PlaceBidUseCase } from './application/PlaceBidUseCase';
@@ -16,8 +18,10 @@ import { BullMQService } from '../shared/infrastructure/BullMQService';
 import { EmailNotificationWorker } from './infrastructure/workers/EmailNotificationWorker';
 import { AuctionClosingWorker } from './infrastructure/workers/AuctionClosingWorker';
 
+const isProd = process.env.NODE_ENV === 'production';
+
 @Module({
-    imports: [EventBusModule, NotifierModule],
+    imports: [EventBusModule, NotifierModule, DrizzleModule],
     controllers: [AuctionController, ItemController],
     providers: [
         // Use Cases
@@ -27,9 +31,11 @@ import { AuctionClosingWorker } from './infrastructure/workers/AuctionClosingWor
         CreateItemUseCase,
 
         // Repositories
+        DrizzleAuctionRepository,
+        InMemoryAuctionRepository,
         {
             provide: 'AuctionRepository',
-            useClass: InMemoryAuctionRepository,
+            useClass: isProd ? DrizzleAuctionRepository : InMemoryAuctionRepository,
         },
         {
             provide: 'ItemRepository',
