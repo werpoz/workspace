@@ -1,228 +1,129 @@
-# Workspace - NestJS DDD Project
+# Auction SaaS Core
 
-A production-ready NestJS application built with Domain-Driven Design (DDD) and Hexagonal Architecture principles, featuring custom authentication with email verification and comprehensive test coverage.
+A robust, production-ready backend engine for a real-time Auction SaaS platform. Built with **NestJS**, following **Domain-Driven Design (DDD)** and **Hexagonal Architecture** principles.
 
-## 🏗️ Architecture
+![Status](https://img.shields.io/badge/Status-MVP_Complete-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-98%25-green)
+![Tech](https://img.shields.io/badge/Stack-NestJS_Redis_BullMQ-blue)
 
-This project follows **Domain-Driven Design (DDD)** and **Hexagonal Architecture** patterns:
+## � Key Features
 
-```
-src/
-└── context/
-    ├── identity/           # Identity Bounded Context
-    │   ├── domain/         # Domain layer (entities, value objects, events)
-    │   ├── application/    # Application layer (use cases, handlers)
-    │   └── infrastructure/ # Infrastructure layer (HTTP, persistence)
-    └── shared/             # Shared kernel
-        ├── domain/         # Shared domain primitives
-        └── infrastructure/ # Shared infrastructure
-```
+### 🏛️ Domain Core
+- **Complex Bidding Rules**:
+  - Minimum increment logic (5% or $5.00)
+  - Anti-sniping (auto-extending end time)
+  - Self-bidding prevention
+- **Auction Lifecycle**: Draft -> Published -> Active -> Completed/Expired
 
-### Key Architectural Patterns
+### ⚡ Real-Time & Async
+- **Real-Time Bidding**: WebSocket-based push updates via Socket.io
+- **Background Jobs**:
+  - `BullMQ` + `Redis` for reliable job processing
+  - Auto-closing of expired auctions
+  - Email notification queues (Outbid, Won, Ends soon)
 
-- **CQRS (Command Query Responsibility Segregation)**: Separates read and write operations
-- **Event-Driven Architecture**: Domain events for decoupled communication
-- **Dependency Injection**: NestJS IoC container for loose coupling
-- **Repository Pattern**: Abstraction over data persistence
-- **Value Objects**: Immutable domain primitives with validation
-- **Email Verification**: Robust verification system with code/link support and expiration logic
+### 🔐 Security & Identity
+- **Custom Auth System**:
+  - JWT Access Tokens
+  - Email verification (6-digit codes)
+  - Separation of `Account` (auth) and `Identity` (profile)
+  - Secure password hashing (Bcrypt)
+
+---
+
+## 📚 Documentation
+
+The `docs/` folder contains comprehensive guides:
+
+- **Getting Started**:
+  - [WebSocket Quickstart](./docs/WEBSOCKET_QUICKSTART.md) - Setup real-time features
+  - [Frontend Integration](./docs/FRONTEND_INTEGRATION.md) - Integrating React/Gateway
+  - [Project Status](./docs/PROJECT_STATUS.md) - Current MVP status
+
+- **Deep Dive**:
+  - [Architecture Guide](./docs/ARCHITECTURE.md) - Hexagonal + DDD explained
+  - [Internal Flows](./docs/INTERNAL_FLOWS.md) - Sequence diagrams of core flows
+  - [Database Schema](./docs/DATABASE_SCHEMA.md) - Data models
+  - [Testing Guide](./docs/TESTING.md) - Testing strategy
+
+- **Planning**:
+  - [Roadmap](./docs/AUCTION_ROADMAP.md) - Future features
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
 - Node.js >= 18
 - pnpm >= 8
+- Docker (for Redis)
 
-### Installation
-
+### 1. Setup Environment
 ```bash
-# Install dependencies
 pnpm install
-
-# Copy environment variables
 cp .env.example .env
-
-### Environment Variables
-
-```env
-PORT=3000
-JWT_SECRET=your_jwt_secret
-EMAIL_PROVIDER=test
 ```
 
-### Running the Application
-
+### 2. Start Infrastructure (Redis)
 ```bash
-# Development mode with hot reload
+# Start Redis for WebSockets and BullMQ
+docker-compose up -d redis
+```
+
+### 3. Run Application
+```bash
+# Development mode
 pnpm run start:dev
-
-# Production mode
-pnpm run build
-pnpm run start:prod
-
-# Debug mode
-pnpm run start:debug
 ```
+Access API at `http://localhost:8000`  
+Access Swagger at `http://localhost:8000/docs`
 
-## 🧪 Testing
-
-We maintain **100% test coverage** across the codebase.
-
+### 4. Run Tests
 ```bash
-# Run all tests
-pnpm run test
+# Run unit tests
+pnpm test
 
-# Run tests in watch mode
-pnpm run test:watch
-
-# Run tests with coverage report
+# Check coverage (98%+)
 pnpm run test:cov
-
-# Run e2e tests
-pnpm run test:e2e
 ```
-
-### Test Coverage
-
-- **Statements**: 100%
-- **Branches**: 100%
-- **Functions**: 100%
-- **Lines**: 100%
-
-## 📁 Project Structure
-
-```
-workspace/
-├── src/
-│   ├── context/
-│   │   ├── identity/
-│   │   │   ├── domain/
-│   │   │   │   ├── value-object/     # Value objects (Email, Password, etc.)
-│   │   │   │   ├── events/           # Domain events
-│   │   │   │   ├── interface/        # Repository interfaces
-│   │   │   │   ├── Account.ts        # Account aggregate
-│   │   │   │   └── Identity.ts       # Identity aggregate
-│   │   │   ├── application/
-│   │   │   │   ├── handlers/         # Event handlers
-│   │   │   │   ├── events/           # Application events
-│   │   │   │   └── *.UseCase.ts      # Use cases
-│   │   │   └── infrastructure/
-│   │   │       ├── http/             # Controllers, guards, webhooks
-│   │   │       └── persistence/      # Repository implementations
-│   │   └── shared/
-│   │       ├── domain/               # Shared domain primitives
-│   │       └── infrastructure/       # Shared infrastructure
-│   ├── app.module.ts
-│   └── main.ts
-├── test/                             # Mirror of src/ for unit tests
-├── .env.example
-├── package.json
-└── README.md
-```
-
-## 🛠️ Development
-
-### Code Style
-
-We use ESLint and Prettier for code formatting:
-
-```bash
-# Format code
-pnpm run format
-
-# Lint and fix
-pnpm run lint
-```
-
-### Naming Conventions
-
-- **Value Objects**: Use `.vo.ts` suffix (e.g., `Email.vo.ts`, `AccountID.vo.ts`)
-- **Domain Events**: Use `*DomainEvent.ts` suffix (e.g., `IdentityCreatedDomainEvent.ts`)
-- **Use Cases**: Use `*UseCase.ts` suffix (e.g., `RegisterExternalAccountUseCase.ts`)
-- **Handlers**: Use `*Handler.ts` suffix (e.g., `ExternalUserCreatedHandler.ts`)
-- **Tests**: Use `.spec.ts` suffix, mirroring the source structure
-
-### Adding a New Feature
-
-1. **Domain Layer**: Define entities, value objects, and domain events
-2. **Application Layer**: Create use cases and event handlers
-3. **Infrastructure Layer**: Implement controllers, repositories, and external integrations
-4. **Tests**: Write comprehensive unit tests for each layer
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
-
-## 🔐 Authentication
- 
- This project uses a custom authentication system with:
- 
- - **JWT Strategy**: Protects routes with JWT verification
- - **Email Verification**: Ensures account validity via 6-digit codes
- - **Secure Password Hashing**: Uses bcrypt for password security
- - **Event-Driven Registration**: Decoupled registration and verification flows
-
-## 📚 Key Concepts
-
-### Domain-Driven Design
-
-- **Bounded Contexts**: Logical boundaries for different parts of the system (e.g., Identity)
-- **Aggregates**: Clusters of domain objects treated as a single unit (e.g., Account, Identity)
-- **Value Objects**: Immutable objects defined by their attributes (e.g., Email, Password)
-- **Domain Events**: Events that represent something that happened in the domain
-
-### CQRS
-
-- **Commands**: Operations that change state (handled by use cases)
-- **Queries**: Operations that read state (handled by repositories)
-- **Event Bus**: Publishes domain events for asynchronous processing
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for:
-
-- Code of Conduct
-- Development workflow
-- Pull request process
-- Coding standards
-- Testing requirements
-
-## 📖 Additional Documentation
-
-- [Architecture Guide](./docs/ARCHITECTURE.md) - Detailed architecture documentation
-- [API Documentation](./docs/API.md) - API endpoints and usage
-- [Testing Guide](./docs/TESTING.md) - Testing strategies and best practices
-
-## 🐛 Debugging
-
-```bash
-# Debug mode
-pnpm run start:debug
-
-# Debug tests
-pnpm run test:debug
-```
-
-## 📦 Building for Production
-
-```bash
-# Build the application
-pnpm run build
-
-# Run production build
-pnpm run start:prod
-```
-
-## 📄 License
-
-This project is [UNLICENSED](LICENSE).
-
-## 🙏 Acknowledgments
-
-Built with:
-- [NestJS](https://nestjs.com/) - Progressive Node.js framework
-- [Jest](https://jestjs.io/) - Testing framework
-- [TypeScript](https://www.typescriptlang.org/) - Type-safe JavaScript
 
 ---
 
-For questions or support, please open an issue on GitHub.
+## 🏗️ Project Structure
+
+```
+src/
+├── context/
+│   ├── auction/            # Auction Bounded Context
+│   │   ├── domain/         # Rules: Bids, Anti-sniping, Min Increment
+│   │   ├── application/    # Use Cases: PlaceBid, PublishAuction
+│   │   ├── infrastructure/ # WebSockets, Controllers, BullMQ Workers
+│   ├── identity/           # Identity Bounded Context
+│   │   ├── domain/         # Users, Accounts, Verification
+│   │   ├── application/    # Use Cases: Register, Login
+│   │   └── infrastructure/ # Auth Guards, JWT strategies
+│   └── shared/             # Shared Kernel (EventBus, DDD primitives)
+```
+
+## 🔌 API Endpoints
+
+### Authentication
+- `POST /auth/register` - Create account
+- `POST /auth/login` - Get JWT
+- `POST /auth/verify` - Verify email
+
+### Auctions
+- `POST /auctions` - Create draft auction
+- `POST /auctions/:id/publish` - Go live
+- `POST /auctions/:id/bids` - Place bid (Real-time broadcast)
+- `GET /auctions/:id` - Get details
+
+---
+
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+## 📄 License
+
+UNLICENSED
