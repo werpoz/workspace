@@ -18,6 +18,7 @@ import { SessionController } from './infrastructure/http/controller/SessionContr
 import { MessageController } from './infrastructure/http/controller/MessageController';
 import { WhatsappGateway } from './infrastructure/ws/WhatsappGateway';
 import { IdempotencyService } from './infrastructure/idempotency/IdempotencyService';
+import { S3MediaStorage } from './infrastructure/storage/S3MediaStorage';
 
 @Module({
   imports: [ConfigModule, EventBusModule, DatabaseModule],
@@ -72,6 +73,7 @@ import { IdempotencyService } from './infrastructure/idempotency/IdempotencyServ
     BaileysClientAdapter,
     WhatsappGateway,
     IdempotencyService,
+    S3MediaStorage,
   ],
   exports: [
     'MessageRepository',
@@ -85,6 +87,7 @@ import { IdempotencyService } from './infrastructure/idempotency/IdempotencyServ
     BaileysClientAdapter,
     WhatsappGateway,
     IdempotencyService,
+    S3MediaStorage,
   ],
 })
 export class WhatsappModule {}

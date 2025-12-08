@@ -16,15 +16,13 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document, {
-    customCssUrl: '/docs/swagger-ui.css',
-    customJs: [
-      '/docs/swagger-ui-bundle.js',
-      '/docs/swagger-ui-standalone-preset.js',
-      '/docs/swagger-ui-init.js',
-    ],
+  // deepScanRoutes garantiza que Swagger detecte controladores/routers anidados
+  // en módulos importados (como WhatsApp) cuando corremos en modo producción.
+  const document = SwaggerModule.createDocument(app, config, {
+    include: [AppModule],
+    deepScanRoutes: true,
   });
+  SwaggerModule.setup('docs', app, document);
 
 
   const port = configService.getOrThrow<number>('PORT');
