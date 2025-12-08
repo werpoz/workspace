@@ -17,6 +17,7 @@ import { UpdateMessageStatusUseCase } from './application/use-cases/UpdateMessag
 import { SessionController } from './infrastructure/http/controller/SessionController';
 import { MessageController } from './infrastructure/http/controller/MessageController';
 import { WhatsappGateway } from './infrastructure/ws/WhatsappGateway';
+import { IdempotencyService } from './infrastructure/idempotency/IdempotencyService';
 
 @Module({
   imports: [ConfigModule, EventBusModule, DatabaseModule],
@@ -70,6 +71,7 @@ import { WhatsappGateway } from './infrastructure/ws/WhatsappGateway';
     // adaptador Baileys
     BaileysClientAdapter,
     WhatsappGateway,
+    IdempotencyService,
   ],
   exports: [
     'MessageRepository',
@@ -82,6 +84,7 @@ import { WhatsappGateway } from './infrastructure/ws/WhatsappGateway';
     UpdateMessageStatusUseCase,
     BaileysClientAdapter,
     WhatsappGateway,
+    IdempotencyService,
   ],
 })
 export class WhatsappModule {}

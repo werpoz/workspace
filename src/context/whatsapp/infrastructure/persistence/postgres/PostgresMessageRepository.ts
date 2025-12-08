@@ -51,7 +51,7 @@ export class PostgresMessageRepository implements MessageRepository {
         status: primitives.status ?? null,
       })
       .onConflictDoUpdate({
-        target: schema.whatsappMessages.id,
+        target: schema.whatsappMessages.keyId,
         set: {
           status: primitives.status ?? null,
           content:

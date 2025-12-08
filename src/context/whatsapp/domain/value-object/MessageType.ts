@@ -10,7 +10,8 @@ export enum MessageTypeValues {
   DOCUMENT = 'document',
   STICKER = 'sticker',
   CONTACT = 'contact',
-  LOCATION = 'location'
+  LOCATION = 'location',
+  REACTION = 'reaction'
 }
 
 export class MessageType extends EnumValueObject<MessageTypeValues> {
@@ -52,7 +53,7 @@ export class MessageType extends EnumValueObject<MessageTypeValues> {
       MessageTypeValues.AUDIO,
       MessageTypeValues.VIDEO,
       MessageTypeValues.DOCUMENT,
-      MessageTypeValues.STICKER
+      MessageTypeValues.STICKER,
     ].includes(this.value);
   }
 

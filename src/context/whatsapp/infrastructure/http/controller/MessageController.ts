@@ -2,13 +2,22 @@ import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { BaileysClientAdapter } from '../../baileys/BaileysClientAdapter';
 import { SyncHistoryUseCase } from '../../../application/use-cases/SyncHistoryUseCase';
 import { MessageTypeValues } from '../../../domain/value-object/MessageType';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 class SendMessageDto {
   sessionId: string;
   to: string;
   from: string;
+  @IsEnum(MessageTypeValues)
   type: MessageTypeValues;
+  @IsString()
+  @IsNotEmpty()
   content: string;
+  @IsOptional()
+  @IsString()
+  caption?: string;
+  @IsOptional()
+  @IsString()
   clientMessageId?: string;
 }
 
@@ -27,6 +36,7 @@ export class MessageController {
       from: dto.from,
       type: dto.type,
       content: dto.content,
+      caption: dto.caption,
       clientMessageId: dto.clientMessageId,
     });
     return result;

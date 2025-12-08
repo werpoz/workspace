@@ -20,6 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.670.0",
+    "@aws-sdk/s3-request-presigner": "^3.670.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -33,6 +35,7 @@
     "@types/nodemailer": "^7.0.4",
     "baileys": "7.0.0-rc.9",
     "bcryptjs": "^3.0.3",
+    "class-validator": "0.14.1",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.36.2",
     "ioredis": "^5.4.2",
