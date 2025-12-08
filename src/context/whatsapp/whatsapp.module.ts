@@ -6,13 +6,26 @@ import { PostgresMessageRepository } from './infrastructure/persistence/postgres
 import { PostgresWhatsappSessionRepository } from './infrastructure/persistence/postgres/PostgresWhatsappSessionRepository';
 import { InMemoryMessageRepository } from './infrastructure/persistence/memory/InMemoryMessageRepository';
 import { InMemoryWhatsappSessionRepository } from './infrastructure/persistence/memory/InMemoryWhatsappSessionRepository';
+import { StartSessionUseCase } from './application/use-cases/StartSessionUseCase';
+import { HandleConnectionUpdateUseCase } from './application/use-cases/HandleConnectionUpdateUseCase';
+import { HandleIncomingMessageUseCase } from './application/use-cases/HandleIncomingMessageUseCase';
+import { SendMessageUseCase } from './application/use-cases/SendMessageUseCase';
+import { SyncHistoryUseCase } from './application/use-cases/SyncHistoryUseCase';
+import { BaileysClientAdapter } from './infrastructure/baileys/BaileysClientAdapter';
+import { PostgresAuthSnapshotRepository } from './infrastructure/persistence/postgres/PostgresAuthSnapshotRepository';
+import { UpdateMessageStatusUseCase } from './application/use-cases/UpdateMessageStatusUseCase';
+import { SessionController } from './infrastructure/http/controller/SessionController';
+import { MessageController } from './infrastructure/http/controller/MessageController';
+import { WhatsappGateway } from './infrastructure/ws/WhatsappGateway';
 
 @Module({
   imports: [ConfigModule, EventBusModule, DatabaseModule],
+  controllers: [SessionController, MessageController],
   providers: [
     // base providers para DI
     PostgresMessageRepository,
     PostgresWhatsappSessionRepository,
+    PostgresAuthSnapshotRepository,
     InMemoryMessageRepository,
     InMemoryWhatsappSessionRepository,
     {
@@ -47,7 +60,28 @@ import { InMemoryWhatsappSessionRepository } from './infrastructure/persistence/
         InMemoryWhatsappSessionRepository,
       ],
     },
+    // casos de uso
+    StartSessionUseCase,
+    HandleConnectionUpdateUseCase,
+    HandleIncomingMessageUseCase,
+    SendMessageUseCase,
+    SyncHistoryUseCase,
+    UpdateMessageStatusUseCase,
+    // adaptador Baileys
+    BaileysClientAdapter,
+    WhatsappGateway,
   ],
-  exports: ['MessageRepository', 'WhatsappSessionRepository'],
+  exports: [
+    'MessageRepository',
+    'WhatsappSessionRepository',
+    StartSessionUseCase,
+    HandleConnectionUpdateUseCase,
+    HandleIncomingMessageUseCase,
+    SendMessageUseCase,
+    SyncHistoryUseCase,
+    UpdateMessageStatusUseCase,
+    BaileysClientAdapter,
+    WhatsappGateway,
+  ],
 })
 export class WhatsappModule {}

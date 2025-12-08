@@ -1,11 +1,20 @@
 - [x] Persistencia consolidada: repos de identidad Drizzle (cuentas, identidades, verificaciones) con JWT_SECRET/JWT_EXPIRES_IN en config y fallback a memoria en dev.
 - [x] Repos WhatsApp con Drizzle y fallback a memoria en dev; eliminación de DDL en repos.
-- [ ] Capa de aplicación WhatsApp: casos de uso (StartSession, HandleConnectionUpdate, HandleIncomingMessage, SendMessage, SyncHistory) y handlers de eventos de dominio.
-- [ ] Adaptador Baileys: listener de eventos y comandos de envío; `useMultiFileAuthState` sobre Redis (namespaced por sesión) con checkpoints a Postgres; reconexión y manejo de `ConnectionState`.
-- [ ] API/WS: controllers + gateways Nest para sesiones (crear/listar/estado/qr) y mensajes (enviar/ack/stream) con DTO limpio; cero lógica en controllers.
-- [ ] Event streaming: outbox a Kafka (o Redis Streams fallback) para reenviar eventos de dominio (mensajes, sesiones) a otros servicios; productor Nest inyectado vía puerto.
-- [ ] Idempotencia y dedupe: token Redis por `message.key.id` (entrante) y por (session, clientMessageId) en saliente; `ON CONFLICT DO NOTHING` donde aplique; reintentos con backoff.
-- [ ] Media/storage: puertos + adaptadores S3/R2 para imágenes/documentos; guardar metadatos en Postgres y URLs firmadas en DTO.
-- [ ] Observabilidad y salud: métricas básicas, logs estructurados, endpoints de health/readiness para DB/Redis/Kafka.
-- [ ] Migraciones: consolidar pipeline Drizzle (`drizzle-kit push` o CI); asegurar índices/uniques alineados a dedupe.
-- [ ] Pruebas: unit de dominio, integración de repos Drizzle, contratos de DTO y handlers; smoke e2e para login y ciclo básico de mensajes.
+- [x] API/WS básicos (MVP una sesión): endpoints y gateway WS para sesiones (crear/estado/QR) y mensajes (send/stream/ack/history) con DTO limpio; sin lógica en controllers.
+- [ ] Tipos de mensaje y acks esenciales: texto + media (imagen/doc/audio/video) con S3/R2 y metadatos en Postgres; estados pending/sent/delivered/read via `messages.update`/receipts.
+- [x] Eventos Baileys mínimos: `messages.upsert/update`, presence/typing básico, reconexiones con backoff/códigos; QR/connection state en WS con rate-limit.
+- [ ] Idempotencia y dedupe: token Redis por `message.key.id` entrante y (session, clientMessageId) saliente; `ON CONFLICT DO NOTHING`; reintentos con backoff.
+- [x] Auth state resiliente (single sesión): restaurar Postgres→Redis al boot; watchdog de expiración/relogin; snapshots periódicos.
+- [ ] Observabilidad mínima: health/readiness (Postgres/Redis/Baileys), logs estructurados, métricas básicas (mensajes, reconexiones).
+- [ ] Media/storage y limpieza: puertos/adaptadores S3/R2, metadatos en Postgres, URLs firmadas, políticas de retención.
+- [ ] Seguridad básica: namespacing, auth/roles en endpoints/WS, rate limits por sesión/usuario.
+- [ ] CI/CD y pruebas MVP: Drizzle en pipeline, e2e de login + ciclo de mensaje (una sesión), pruebas de reconexión/dedupe.
+- [ ] Orquestación multi-worker (multi-sesión): lock/lease de sesión en Redis, registro de dueño, routing de comandos, takeover en fallas.
+- [ ] Outbox/cola y eventos: outbox en DB + productor Kafka/Redis Streams; cola de envíos/acks tolerante a fallas; idempotencia reforzada.
+- [ ] Paridad avanzada: history sync (chats/contacts upsert/update), presence completa, tipos adicionales (reaction/quoted), llamadas si aplican.
+- [ ] Seguridad/multi-tenant avanzada: namespacing por cliente, rotación de secrets, cifrado de snapshots, límites por tenant.
+- [ ] Observabilidad/operación avanzada: métricas de tráfico/latencias/reintentos/reconexiones, logs con correlation IDs, alertas.
+- [ ] CI/CD y pruebas avanzadas: e2e multi-sesión, pruebas de takeover/locks, estrés de reintentos y dedupe.
+- [ ] Siguiente foco sugerido: Idempotencia y dedupe + reintentos (tokens Redis para entrantes/salientes, `ON CONFLICT DO NOTHING`, backoff en envíos) para estabilizar flujos antes de agregar media/multi-sesión.
+
+Objetivo: backend multicliente de WhatsApp con paridad funcional a WhatsApp Web, soportando múltiples sesiones concurrentes con resiliencia (locks, reintentos, snapshots), entrega en tiempo real vía API/WS, idempotencia estricta, manejo completo de eventos y medios, y observabilidad/seguridad listas para producción.

@@ -14,9 +14,9 @@ import Joi from 'joi';
         PORT: Joi.number().default(3000),
         DATABASE_URL: Joi.string()
           .uri()
-          .default('postgres://whatsapp:whatsapp@localhost:5432/whatsapp'),
+          .default('postgres://whatsapp:whatsapp@postgres:5432/whatsapp'),
         DATABASE_POOL_MAX: Joi.number().default(10),
-        REDIS_URL: Joi.string().default('redis://localhost:6379'),
+        REDIS_URL: Joi.string().default('redis://redis:6379'),
         REDIS_TLS: Joi.boolean().default(false),
         KAFKA_BROKERS: Joi.string().default('localhost:9092'),
         S3_ENDPOINT: Joi.string().default('http://localhost:9000'),

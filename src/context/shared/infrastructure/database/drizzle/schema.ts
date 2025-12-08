@@ -1,6 +1,7 @@
 import {
   boolean,
   index,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -56,6 +57,13 @@ export const whatsappMessages = pgTable(
     toIdx: index('idx_whatsapp_messages_to').on(table.toNumber),
   }),
 );
+
+export const whatsappAuthSnapshots = pgTable('whatsapp_auth_snapshots', {
+  sessionId: uuid('session_id').primaryKey(),
+  creds: jsonb('creds').notNull(),
+  keys: jsonb('keys').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+});
 
 export const accounts = pgTable(
   'accounts',
