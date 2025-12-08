@@ -40,4 +40,14 @@ export class WhatsappGateway {
     this.server?.to(sessionId).emit('typing', data);
     this.server?.emit('typing', data);
   }
+
+  emitContacts(sessionId: string, contacts: any[]) {
+    this.server?.to(sessionId).emit('contacts.upsert', contacts);
+    this.server?.emit('contacts.upsert', contacts);
+  }
+
+  emitChats(sessionId: string, chats: any[]) {
+    this.server?.to(sessionId).emit('chats.upsert', chats);
+    this.server?.emit('chats.upsert', chats);
+  }
 }

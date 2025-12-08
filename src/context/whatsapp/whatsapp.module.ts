@@ -19,6 +19,10 @@ import { MessageController } from './infrastructure/http/controller/MessageContr
 import { WhatsappGateway } from './infrastructure/ws/WhatsappGateway';
 import { IdempotencyService } from './infrastructure/idempotency/IdempotencyService';
 import { S3MediaStorage } from './infrastructure/storage/S3MediaStorage';
+import { PostgresContactRepository } from './infrastructure/persistence/postgres/PostgresContactRepository';
+import { PostgresChatRepository } from './infrastructure/persistence/postgres/PostgresChatRepository';
+import { InMemoryContactRepository } from './infrastructure/persistence/memory/InMemoryContactRepository';
+import { InMemoryChatRepository } from './infrastructure/persistence/memory/InMemoryChatRepository';
 
 @Module({
   imports: [ConfigModule, EventBusModule, DatabaseModule],
@@ -30,6 +34,10 @@ import { S3MediaStorage } from './infrastructure/storage/S3MediaStorage';
     PostgresAuthSnapshotRepository,
     InMemoryMessageRepository,
     InMemoryWhatsappSessionRepository,
+    PostgresContactRepository,
+    PostgresChatRepository,
+    InMemoryContactRepository,
+    InMemoryChatRepository,
     {
       provide: 'MessageRepository',
       useFactory: (
@@ -45,6 +53,34 @@ import { S3MediaStorage } from './infrastructure/storage/S3MediaStorage';
         PostgresMessageRepository,
         InMemoryMessageRepository,
       ],
+    },
+    {
+      provide: 'ContactRepository',
+      useFactory: (
+        config: ConfigService,
+        pg: PostgresContactRepository,
+        memory: InMemoryContactRepository,
+      ) =>
+        (config.get<string>('NODE_ENV') ?? process.env.NODE_ENV) === 'dev'
+          ? memory
+          : pg,
+      inject: [
+        ConfigService,
+        PostgresContactRepository,
+        InMemoryContactRepository,
+      ],
+    },
+    {
+      provide: 'ChatRepository',
+      useFactory: (
+        config: ConfigService,
+        pg: PostgresChatRepository,
+        memory: InMemoryChatRepository,
+      ) =>
+        (config.get<string>('NODE_ENV') ?? process.env.NODE_ENV) === 'dev'
+          ? memory
+          : pg,
+      inject: [ConfigService, PostgresChatRepository, InMemoryChatRepository],
     },
     {
       provide: 'WhatsappSessionRepository',
@@ -78,6 +114,8 @@ import { S3MediaStorage } from './infrastructure/storage/S3MediaStorage';
   exports: [
     'MessageRepository',
     'WhatsappSessionRepository',
+    'ContactRepository',
+    'ChatRepository',
     StartSessionUseCase,
     HandleConnectionUpdateUseCase,
     HandleIncomingMessageUseCase,
@@ -88,6 +126,10 @@ import { S3MediaStorage } from './infrastructure/storage/S3MediaStorage';
     WhatsappGateway,
     IdempotencyService,
     S3MediaStorage,
+    PostgresContactRepository,
+    PostgresChatRepository,
+    InMemoryContactRepository,
+    InMemoryChatRepository,
   ],
 })
 export class WhatsappModule {}

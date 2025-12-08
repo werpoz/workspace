@@ -49,6 +49,8 @@ export const whatsappMessages = pgTable(
     keyRemoteJid: text('key_remote_jid'),
     keyFromMe: boolean('key_from_me'),
     status: text('status'),
+    quotedMessageId: uuid('quoted_message_id'),
+    forwardedFromMessageId: uuid('forwarded_from_message_id'),
   },
   (table) => ({
     keyIdUnique: uniqueIndex('whatsapp_messages_key_id_key').on(table.keyId),
@@ -56,6 +58,31 @@ export const whatsappMessages = pgTable(
     fromIdx: index('idx_whatsapp_messages_from').on(table.fromNumber),
     toIdx: index('idx_whatsapp_messages_to').on(table.toNumber),
   }),
+);
+
+export const whatsappContacts = pgTable(
+  'whatsapp_contacts',
+  {
+    id: text('id').primaryKey(), // jid
+    name: text('name'),
+    pushName: text('push_name'),
+    phone: text('phone'),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  },
+  (table) => ({
+    phoneIdx: index('idx_whatsapp_contacts_phone').on(table.phone),
+  }),
+);
+
+export const whatsappChats = pgTable(
+  'whatsapp_chats',
+  {
+    id: text('id').primaryKey(), // jid
+    name: text('name'),
+    unreadCount: integer('unread_count').default(0),
+    lastMessageAt: timestamp('last_message_at', { withTimezone: true }),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull(),
+  },
 );
 
 export const whatsappAuthSnapshots = pgTable('whatsapp_auth_snapshots', {

@@ -24,7 +24,9 @@ export class Message extends AggregateRoot {
       remoteJid: string;
       fromMe: boolean;
     },
-    public readonly status?: string
+    public readonly status?: string,
+    public readonly quotedMessageId?: string,
+    public readonly forwardedFromMessageId?: string,
   ) {
     super();
   }
@@ -76,7 +78,9 @@ export class Message extends AggregateRoot {
       id: string;
       remoteJid: string;
       fromMe: boolean;
-    }
+    },
+    quotedMessageId?: string,
+    forwardedFromMessageId?: string,
   ): Message {
     const message = new Message(
       MessageId.random(),
@@ -88,7 +92,9 @@ export class Message extends AggregateRoot {
       MessageTimestamp.now(),
       MessageDirection.createOutgoing(),
       key,
-      'pending'
+      'pending',
+      quotedMessageId,
+      forwardedFromMessageId,
     );
 
     message.record(new MessageSentDomainEvent({
@@ -130,7 +136,9 @@ export class Message extends AggregateRoot {
       timestamp: this.timestamp.value,
       direction: this.direction.value,
       key: this.key,
-      status: this.status
+      status: this.status,
+      quotedMessageId: this.quotedMessageId,
+      forwardedFromMessageId: this.forwardedFromMessageId,
     };
   }
 
@@ -143,7 +151,9 @@ export class Message extends AggregateRoot {
       content: this.type.isMedia() ? { url: this.content.value } : this.content.value,
       timestamp: this.timestamp.value.getTime(),
       direction: this.direction.value,
-      status: this.status
+      status: this.status,
+      quotedMessageId: this.quotedMessageId,
+      forwardedFromMessageId: this.forwardedFromMessageId,
     };
   }
 }

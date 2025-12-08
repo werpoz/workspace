@@ -16,6 +16,13 @@ import { UpdateMessageStatusUseCase } from '../../application/use-cases/UpdateMe
 import { WhatsappGateway } from '../ws/WhatsappGateway';
 import { IdempotencyService } from '../idempotency/IdempotencyService';
 import { S3MediaStorage } from '../storage/S3MediaStorage';
+import type { MessageRepository } from '../../domain/interface/MessageRepository';
+import { MessageId } from '../../domain/value-object/MessageId';
+import { Message } from '../../domain/Message';
+import type { ContactRepository } from '../../domain/interface/ContactRepository';
+import type { ChatRepository } from '../../domain/interface/ChatRepository';
+import { Contact } from '../../domain/Contact';
+import { Chat } from '../../domain/Chat';
 
 @Injectable()
 export class BaileysClientAdapter {
@@ -37,6 +44,12 @@ export class BaileysClientAdapter {
     private readonly gateway: WhatsappGateway,
     private readonly idempotency: IdempotencyService,
     private readonly mediaStorage: S3MediaStorage,
+    @Inject('MessageRepository')
+    private readonly messages: MessageRepository,
+    @Inject('ContactRepository')
+    private readonly contacts: ContactRepository,
+    @Inject('ChatRepository')
+    private readonly chats: ChatRepository,
   ) {}
 
   async start(phoneNumber: string): Promise<WhatsappSession> {
@@ -206,6 +219,70 @@ export class BaileysClientAdapter {
       }
     });
 
+    socket.ev?.on('contacts.upsert', async (payload: any[]) => {
+      const list = (payload ?? []).map(
+        (c) => {
+          const jid = c.id ?? c?.notify ?? '';
+          return new Contact(
+            jid,
+            c.name ?? c.notify,
+            c.notify,
+            jid ? jid.split('@')?.[0] : undefined,
+          );
+        },
+      );
+      await this.contacts.upsertMany(list);
+      this.gateway.emitContacts(sessionId, list.map((c) => c.toPrimitives()));
+    });
+
+    socket.ev?.on('contacts.update', async (payload: any[]) => {
+      const list = (payload ?? []).map(
+        (c) => {
+          const jid = c.id ?? c?.notify ?? '';
+          return new Contact(
+            jid,
+            c.name ?? c.notify,
+            c.notify,
+            jid ? jid.split('@')?.[0] : undefined,
+          );
+        },
+      );
+      await this.contacts.upsertMany(list);
+      this.gateway.emitContacts(sessionId, list.map((c) => c.toPrimitives()));
+    });
+
+    socket.ev?.on('chats.upsert', async (payload: any[]) => {
+      const list = (payload ?? []).map(
+        (chat) =>
+          new Chat(
+            chat.id,
+            chat.name ?? chat.subject,
+            chat.unreadCount ?? 0,
+            chat.conversationTimestamp
+              ? new Date(chat.conversationTimestamp * 1000)
+              : undefined,
+          ),
+      );
+      await this.chats.upsertMany(list);
+      this.gateway.emitChats(sessionId, list.map((c) => c.toPrimitives()));
+    });
+
+    socket.ev?.on('chats.update', async (payload: any[]) => {
+      const list = (payload ?? []).map(
+        (chat) =>
+          new Chat(
+            chat.id,
+            chat.name ?? chat.subject,
+            chat.unreadCount ?? 0,
+            chat.conversationTimestamp
+              ? new Date(chat.conversationTimestamp * 1000)
+              : undefined,
+          ),
+      );
+      await this.chats.upsertMany(list);
+      this.gateway.emitChats(sessionId, list.map((c) => c.toPrimitives()));
+    });
+
     socket.ev?.on('presence.update', async (presence: any) => {
       const { id, presences } = presence || {};
       this.gateway.emitPresence(sessionId, {
@@ -240,6 +317,8 @@ export class BaileysClientAdapter {
     type: MessageTypeValues;
     content: string;
     caption?: string;
+    replyToMessageId?: string;
+    forwardFromMessageId?: string;
     clientMessageId?: string;
   }) {
     const socket = this.sockets.get(params.sessionId);
@@ -254,8 +333,24 @@ export class BaileysClientAdapter {
       async () => {
         const message = await this.sendMessageUseCase.execute(params);
 
+        const quotedMessage = params.replyToMessageId
+          ? await this.messages.findById(
+              new MessageId(params.replyToMessageId),
+            )
+          : undefined;
+
+        const forwardSource = params.forwardFromMessageId
+          ? await this.messages.findById(
+              new MessageId(params.forwardFromMessageId),
+            )
+          : undefined;
+
         if (socket) {
-          const payload = await this.buildOutgoingPayload(params);
+          const payload = await this.buildOutgoingPayload(
+            params,
+            forwardSource ?? undefined,
+            quotedMessage ?? undefined,
+          );
           await socket.sendMessage(params.to, payload, {
             messageId: params.clientMessageId ?? message.id.value,
           });
@@ -276,12 +371,13 @@ export class BaileysClientAdapter {
     type: MessageTypeValues;
     content: string;
     caption?: string;
-  }) {
+    forwardFromMessageId?: string;
+  }, forwardSource?: Message, quotedMessage?: Message) {
+    const payload: any = {};
+    // base content
     if (params.type === MessageTypeValues.TEXT) {
-      return { text: params.content };
-    }
-
-    if (
+      payload.text = params.content;
+    } else if (
       params.type === MessageTypeValues.IMAGE ||
       params.type === MessageTypeValues.VIDEO ||
       params.type === MessageTypeValues.DOCUMENT ||
@@ -303,43 +399,31 @@ export class BaileysClientAdapter {
               ? 'sticker'
               : 'image';
 
-      return {
-        [field]: { url: params.content },
-        caption: params.caption ?? (isImage || isVideo ? '' : undefined),
+      payload[field] = { url: params.content };
+      payload.caption = params.caption ?? (isImage || isVideo ? '' : undefined);
+    } else if (params.type === MessageTypeValues.CONTACT) {
+      payload.contacts = {
+        displayName: params.caption ?? 'Contact',
+        contacts: [
+          {
+            vcard: params.content,
+          },
+        ],
       };
-    }
-
-    if (params.type === MessageTypeValues.CONTACT) {
-      return {
-        contacts: {
-          displayName: params.caption ?? 'Contact',
-          contacts: [
-            {
-              vcard: params.content,
-            },
-          ],
-        },
-      };
-    }
-
-    if (params.type === MessageTypeValues.LOCATION) {
+    } else if (params.type === MessageTypeValues.LOCATION) {
       let parsed: any = {};
       try {
         parsed = JSON.parse(params.content);
       } catch {
         parsed = {};
       }
-      return {
-        location: {
-          degreesLatitude: parsed.lat ?? 0,
-          degreesLongitude: parsed.lng ?? 0,
-          name: parsed.name,
-          address: parsed.address,
-        },
+      payload.location = {
+        degreesLatitude: parsed.lat ?? 0,
+        degreesLongitude: parsed.lng ?? 0,
+        name: parsed.name,
+        address: parsed.address,
       };
-    }
-
-    if (params.type === MessageTypeValues.REACTION) {
+    } else if (params.type === MessageTypeValues.REACTION) {
       let parsed: any = {};
       try {
         parsed = JSON.parse(params.content);
@@ -347,25 +431,61 @@ export class BaileysClientAdapter {
         parsed = {};
       }
       if (!parsed.text || !parsed.key) {
-        return { text: params.content };
-      }
-      return {
-        react: {
+        payload.text = params.content;
+      } else {
+        payload.react = {
           text: parsed.text,
           key: {
             id: parsed.key,
             remoteJid: parsed.remoteJid,
             fromMe: parsed.fromMe,
           },
-        },
+        };
+      }
+    } else {
+      payload.text = params.content;
+    }
+
+    if (quotedMessage) {
+      const quoted = this.buildQuotedMessageStub(quotedMessage);
+      if (quoted) {
+        payload.quoted = quoted;
+      }
+    }
+
+    if (forwardSource) {
+      payload.contextInfo = {
+        ...(payload.contextInfo ?? {}),
+        forwardingScore: 1,
+        isForwarded: true,
       };
     }
 
-    return { text: params.content };
+    return payload;
   }
 
   async getQr(sessionId: string): Promise<string | null> {
     return (await this.redis.get(this.qrKey(sessionId))) ?? null;
+  }
+
+  private buildQuotedMessageStub(message: Message) {
+    const key =
+      message.key ??
+      {
+        id: message.id.value,
+        remoteJid: message.direction.isOutgoing()
+          ? message.to.value
+          : message.from.value,
+        fromMe: message.direction.isOutgoing(),
+      };
+    const textPreview = message.content.value;
+    if (!key?.id || !key.remoteJid) return null;
+    return {
+      key,
+      message: {
+        conversation: textPreview,
+      },
+    };
   }
 
   async getMessages(sessionId: string) {

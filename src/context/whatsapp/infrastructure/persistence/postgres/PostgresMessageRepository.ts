@@ -49,6 +49,8 @@ export class PostgresMessageRepository implements MessageRepository {
         keyRemoteJid: key?.remoteJid ?? null,
         keyFromMe: key?.fromMe ?? null,
         status: primitives.status ?? null,
+        quotedMessageId: primitives.quotedMessageId ?? null,
+        forwardedFromMessageId: primitives.forwardedFromMessageId ?? null,
       })
       .onConflictDoUpdate({
         target: schema.whatsappMessages.keyId,
@@ -60,6 +62,8 @@ export class PostgresMessageRepository implements MessageRepository {
               : JSON.stringify(primitives.content),
           direction: primitives.direction,
           timestamp: primitives.timestamp,
+          quotedMessageId: primitives.quotedMessageId ?? null,
+          forwardedFromMessageId: primitives.forwardedFromMessageId ?? null,
         },
       });
   }
@@ -159,6 +163,8 @@ export class PostgresMessageRepository implements MessageRepository {
           }
         : undefined,
       row.status ?? undefined,
+      row.quotedMessageId ?? undefined,
+      row.forwardedFromMessageId ?? undefined,
     );
   }
 }
