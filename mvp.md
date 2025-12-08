@@ -1,0 +1,11 @@
+- [x] Persistencia consolidada: repos de identidad Drizzle (cuentas, identidades, verificaciones) con JWT_SECRET/JWT_EXPIRES_IN en config y fallback a memoria en dev.
+- [x] Repos WhatsApp con Drizzle y fallback a memoria en dev; eliminación de DDL en repos.
+- [ ] Capa de aplicación WhatsApp: casos de uso (StartSession, HandleConnectionUpdate, HandleIncomingMessage, SendMessage, SyncHistory) y handlers de eventos de dominio.
+- [ ] Adaptador Baileys: listener de eventos y comandos de envío; `useMultiFileAuthState` sobre Redis (namespaced por sesión) con checkpoints a Postgres; reconexión y manejo de `ConnectionState`.
+- [ ] API/WS: controllers + gateways Nest para sesiones (crear/listar/estado/qr) y mensajes (enviar/ack/stream) con DTO limpio; cero lógica en controllers.
+- [ ] Event streaming: outbox a Kafka (o Redis Streams fallback) para reenviar eventos de dominio (mensajes, sesiones) a otros servicios; productor Nest inyectado vía puerto.
+- [ ] Idempotencia y dedupe: token Redis por `message.key.id` (entrante) y por (session, clientMessageId) en saliente; `ON CONFLICT DO NOTHING` donde aplique; reintentos con backoff.
+- [ ] Media/storage: puertos + adaptadores S3/R2 para imágenes/documentos; guardar metadatos en Postgres y URLs firmadas en DTO.
+- [ ] Observabilidad y salud: métricas básicas, logs estructurados, endpoints de health/readiness para DB/Redis/Kafka.
+- [ ] Migraciones: consolidar pipeline Drizzle (`drizzle-kit push` o CI); asegurar índices/uniques alineados a dedupe.
+- [ ] Pruebas: unit de dominio, integración de repos Drizzle, contratos de DTO y handlers; smoke e2e para login y ciclo básico de mensajes.
